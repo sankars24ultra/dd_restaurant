@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HotelApp Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            background-color: #f2f2f2;
+        }
+        .login-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #aaa;
+            width: 300px;
+        }
+        .login-container h2 { text-align: center; }
+        .login-container input {
+            width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc;
+        }
+        .login-container button {
+            width: 100%; padding: 10px; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer;
+        }
+        .login-container button:hover { background-color: #218838; }
+        .error { color: red; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h2>HotelApp Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <div class="error" id="error-msg"></div>
+    <button onclick="login()">Login</button>
+</div>
+
+<script>
+function login(){
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    const error = document.getElementById('error-msg');
+    if(user==='admin' && pass==='admin'){
+        window.location.href='dashboard.html';
+    } else {
+        error.innerText = 'Invalid username or password!';
+    }
+}
+</script>
+</body>
+</html>

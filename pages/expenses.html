@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Expenses</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .popup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px #aaa; z-index:1000; }
+    </style>
+</head>
+<body>
+<h2>Expenses</h2>
+<button onclick="openExpensePopup()">Add Expense</button>
+<table border="1" width="100%" id="expenses-table">
+    <tr>
+        <th>Name</th><th>Total</th><th>Paid</th><th>Pending</th><th>Date</th><th>Action</th>
+    </tr>
+</table>
+
+<div id="expense-popup" class="popup">
+    <h3>Add Expense</h3>
+    <input type="text" id="expense-name" placeholder="Name"><br><br>
+    <input type="number" id="expense-total" placeholder="Total"><br><br>
+    <input type="number" id="expense-paid" placeholder="Paid"><br><br>
+    <button onclick="saveExpense()">Save</button>
+    <button onclick="closeExpensePopup()">Cancel</button>
+</div>
+
+<script src="../../js/expenses.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Dosa",
+        "price": "50",
+        "image": "dosa.png"
+    },
+    {
+        "name": "Idly",
+        "price": "30",
+        "image": "idly.png"
+    },
+    {
+        "name": "tea",
+        "price": 10,
+        "image": "default.png"
+    }
+]

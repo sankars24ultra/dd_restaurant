@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hotel Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <h2 class="logo">HotelApp</h2>
+            <ul class="menu-list">
+                <li><a href="pages/home.html" class="menu-link active">Home</a></li>
+                <li><a href="pages/menu.html" class="menu-link">Menu</a></li>
+                <li><a href="pages/order.html" class="menu-link">Order</a></li>
+                <li><a href="pages/orderHistory.html" class="menu-link">Order History</a></li>
+                <li><a href="pages/expenses.html" class="menu-link">Expenses</a></li>
+                <li><a href="pages/summary.html" class="menu-link">Summary</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content" id="content-frame">
+            <iframe src="pages/home.html" id="page-frame" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
