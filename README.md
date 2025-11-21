@@ -1,2 +1,2 @@
-# dd_restaurant
+# Restaurant Management
 Basic Application for Restaurant Management
