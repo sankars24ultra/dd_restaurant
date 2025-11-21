@@ -1,116 +1,178 @@
-let orderItems = []; // Store quantities per menu index
+if (!window.__orderInitialized) {
+    window.__orderInitialized = true;
 
-// Load menu items as tiles from menu.json
-async function loadMenuForOrder() {
-    const menuTiles = document.getElementById('menuTiles');
-    if (!menuTiles) return;
-    menuTiles.innerHTML = '';
+    document.addEventListener('DOMContentLoaded', () => {
+        const tilesContainer = document.getElementById('menuTiles');
+        const popup = document.getElementById('orderPopup');
+        const orderName = document.getElementById('orderName');
+        const orderMenusTableBody = document.querySelector('#orderMenusTable tbody');
+        const orderTotalInput = document.getElementById('orderTotal');
+        const orderDateTimeInput = document.getElementById('orderDateTime');
+        const payCash = document.getElementById('payCash');
+        const payGpay = document.getElementById('payGpay');
+        const payRemaining = document.getElementById('payRemaining');
+        const payPending = document.getElementById('payPending');
+        const confirmBtn = document.getElementById('confirmOrderBtn');
+        // disable by default until amount covers total
+        confirmBtn.disabled = true;
 
-    try {
-        const res = await fetch('/data/menu.json');
-        const menuData = await res.json();
+        let currentTotal = 0;
+        let currentItems = [];
 
-        menuData.forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'menu-tile';
-            div.innerHTML = `
-                <img src="../pages/images/menu/${item.image || 'default.png'}" alt="${item.name}">
-                <h4>${item.name}</h4>
-                <p>Price: $${item.price}</p>
-                <div>
-                    <button onclick="decreaseQty(${index})">-</button>
-                    <span id="qty-${index}">0</span>
-                    <button onclick="increaseQty(${index})">+</button>
-                </div>
-            `;
-            menuTiles.appendChild(div);
-        });
-    } catch (err) {
-        console.error('Error loading menu:', err);
-    }
-}
+        function formatMoney(v) { return Number(v || 0).toFixed(2); }
+        function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-// Increase quantity
-function increaseQty(index) {
-    if (!orderItems[index]) orderItems[index] = 0;
-    orderItems[index]++;
-    document.getElementById(`qty-${index}`).innerText = orderItems[index];
-    updateTotal();
-}
-
-// Decrease quantity
-function decreaseQty(index) {
-    if (!orderItems[index]) orderItems[index] = 0;
-    if (orderItems[index] > 0) orderItems[index]--;
-    document.getElementById(`qty-${index}`).innerText = orderItems[index];
-    updateTotal();
-}
-
-// Update total price
-async function updateTotal() {
-    try {
-        const res = await fetch('/data/menu.json');
-        const menuData = await res.json();
-        let total = 0;
-        orderItems.forEach((qty, index) => {
-            if (qty > 0) total += qty * parseFloat(menuData[index].price);
-        });
-        document.getElementById('totalAmount').innerText = total.toFixed(2);
-    } catch (err) {
-        console.error('Error updating total:', err);
-    }
-}
-
-// Place order and save to orderHistory.json via Flask
-async function placeOrder() {
-    try {
-        const res = await fetch('/data/menu.json');
-        const menuData = await res.json();
-
-        const itemsOrdered = [];
-        orderItems.forEach((qty, index) => {
-            if (qty > 0) {
-                itemsOrdered.push({
-                    name: menuData[index].name,
-                    price: menuData[index].price,
-                    quantity: qty
+        async function renderMenuTiles() {
+            try {
+                const res = await fetch('/api/menu');
+                const menu = await res.json();
+                tilesContainer.innerHTML = '';
+                menu.forEach((item, idx) => {
+                    const imagePath = item.image ? `/pages/images/menu/${item.image}` : '/pages/images/menu/default.png';
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.innerHTML = `
+                        <div style="text-align:left;"><input type="checkbox" class="order-item-checkbox" data-index="${idx}" data-name="${escapeHtml(item.name)}" data-price="${item.price}" /></div>
+                        <img src="${imagePath}" alt="${escapeHtml(item.name)}">
+                        <div class="meta">
+                            <div style="font-weight:600;">${escapeHtml(item.name)}</div>
+                            <div>Price: ₹${formatMoney(item.price)}</div>
+                        </div>
+                        <div class="controls">
+                            <div>
+                                Qty <input type="number" class="item-qty" value="1" min="1" style="width:60px">
+                            </div>
+                        </div>
+                    `;
+                    const cb = tile.querySelector('.order-item-checkbox');
+                    cb.addEventListener('change', (e) => tile.classList.toggle('selected', e.target.checked));
+                    tilesContainer.appendChild(tile);
                 });
+            } catch (err) {
+                console.error('Failed to load menu for tiles', err);
             }
-        });
-
-        if (itemsOrdered.length === 0) {
-            alert('No items selected!');
-            return;
         }
 
-        const order = {
-            date: new Date().toISOString(),
-            total: parseFloat(document.getElementById('totalAmount').innerText),
-            items: itemsOrdered
+        function collectSelectedItemsOnPage() {
+            const checked = Array.from(document.querySelectorAll('.order-item-checkbox:checked'));
+            return checked.map(cb => {
+                const tile = cb.closest('.tile');
+                const qtyInput = tile ? tile.querySelector('.item-qty') : null;
+                const qty = qtyInput ? Number(qtyInput.value || 1) : 1;
+                return {
+                    name: cb.dataset.name || 'Item',
+                    qty: qty,
+                    price: parseFloat(cb.dataset.price || 0)
+                };
+            });
+        }
+
+        function updatePayments() {
+            const cash = parseFloat(payCash.value || 0);
+            const gpay = parseFloat(payGpay.value || 0);
+            const paid = (isFinite(cash) ? cash : 0) + (isFinite(gpay) ? gpay : 0);
+            const remaining = Math.max(0, currentTotal - paid);
+            payRemaining.value = formatMoney(remaining);
+            payPending.value = paid < currentTotal ? `Pending ${formatMoney(currentTotal - paid)}` : 'Paid';
+
+            // update confirm button state whenever payments change
+            updateConfirmState();
+        }
+
+         // disable confirm if remaining > 0
+        function updateConfirmState() {
+            const remainingNum = parseFloat(payRemaining.value || 0);
+            if (isNaN(remainingNum) || remainingNum > 0) {
+                confirmBtn.disabled = true;
+                confirmBtn.title = 'Cannot confirm - pending amount must be zero';
+            } else {
+                confirmBtn.disabled = false;
+                confirmBtn.title = '';
+            }
+        }
+
+        payCash.addEventListener('input', updatePayments);
+        payGpay.addEventListener('input', updatePayments);
+
+
+        window.openOrderPopup = function(items) {
+            currentItems = Array.isArray(items) ? items.slice() : collectSelectedItemsOnPage();
+            if (!currentItems || currentItems.length === 0) {
+                alert('No items selected for order.');
+                return;
+            }
+
+            orderMenusTableBody.innerHTML = '';
+            currentTotal = 0;
+            currentItems.forEach(it => {
+                const qty = Number(it.qty || 1);
+                const price = Number(it.price || 0);
+                const lineTotal = qty * price;
+                currentTotal += lineTotal;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${escapeHtml(it.name)}</td><td>${qty}</td><td>₹${formatMoney(lineTotal)}</td>`;
+                orderMenusTableBody.appendChild(tr);
+            });
+
+            orderTotalInput.value = formatMoney(currentTotal);
+            orderDateTimeInput.value = new Date().toLocaleString();
+            payCash.value = 0;
+            payGpay.value = 0;
+            updatePayments();
+
+            popup.style.display = 'block';
+            popup.setAttribute('aria-hidden', 'false');
         };
 
-        const res2 = await fetch('/api/order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(order)
+        window.closeOrderPopup = function() {
+            popup.style.display = 'none';
+            popup.setAttribute('aria-hidden', 'true');
+        };
+
+        payCash.addEventListener('input', updatePayments);
+        payGpay.addEventListener('input', updatePayments);
+
+        confirmBtn.addEventListener('click', async () => {
+            // prevent confirm if pending/remaining is not zero
+            const remainingNum = parseFloat(payRemaining.value || 0);
+            if (remainingNum > 0) {
+                alert('Cannot confirm order while there is a pending amount. Please collect full payment.');
+                return;
+            }
+
+            const payload = {
+                orderName: orderName.value || '',
+                items: currentItems,
+                total: Number(currentTotal),
+                paidCash: parseFloat(payCash.value || 0),
+                paidGpay: parseFloat(payGpay.value || 0),
+                remaining: parseFloat(payRemaining.value || 0),
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const text = await res.text().catch(()=>null);
+                    console.warn('Order POST returned', res.status, text);
+                    alert('Order save failed on server. See console.');
+                } else {
+                    console.log('Order saved:', await res.json());
+                }
+            } catch (err) {
+                console.warn('Order POST failed', err);
+                console.log(payload);
+            }
+
+            closeOrderPopup();
+            renderMenuTiles();
         });
 
-        const data = await res2.json();
-        if (data.status === 'success') {
-            alert('Order placed successfully!');
-            orderItems = [];
-            loadMenuForOrder();
-            updateTotal();
-        } else {
-            alert('Failed to place order!');
-        }
-    } catch (err) {
-        console.error('Error placing order:', err);
-    }
+        // initial load
+        renderMenuTiles();
+    });
 }
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    loadMenuForOrder();
-    document.getElementById('placeOrderBtn').addEventListener('click', placeOrder);
-});

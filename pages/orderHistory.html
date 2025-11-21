@@ -1,21 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>Order History</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/orderHistory.js" defer></script>
 </head>
 <body>
-<h2>Order History</h2>
-<label>Start Date: <input type="date" id="start-date"></label>
-<label>End Date: <input type="date" id="end-date"></label>
-<button onclick="filterOrders()">Filter</button>
+    <h2>Order History</h2>
 
-<table border="1" width="100%" id="order-history-table">
-    <tr>
-        <th>Date</th><th>Total</th><th>Items</th>
-    </tr>
-</table>
+    <!-- top bar: total left, controls right -->
+    <div class="oh-topbar">
+        <div class="oh-left">
+            <div class="total-box" id="todayTotalBox">
+                Total: ₹<span id="todayTotalValue">0.00</span>
+            </div>
+        </div>
 
-<script src="../../js/orderHistory.js"></script>
+        <div class="oh-right">
+            <div class="filter-row">
+                <label>From: <input type="date" id="fromDate"></label>
+                <label>To: <input type="date" id="toDate"></label>
+                <button id="applyFilterBtn" type="button">Filter</button>
+                <button id="clearFilterBtn" type="button">Clear</button>
+            </div>
+
+            <div class="controls-row">
+                <label>Rows per page:
+                    <select id="pageSizeSelect">
+                        <option>5</option><option selected>10</option><option>20</option>
+                    </select>
+                </label>
+                <button id="exportCsvBtn" type="button">Export CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <table id="ordersTable" border="1" style="width:100%; margin-top:12px;">
+        <thead>
+            <tr>
+                <th>Order Name</th>
+                <th>Item(s)</th>
+                <th>Total (₹)</th>
+                <th>Cash (₹)</th>
+                <th>GPay (₹)</th>
+                <th>Date / Time</th>
+            </tr>
+        </thead>
+        <tbody id="ordersTableBody">
+            <!-- rows inserted here -->
+        </tbody>
+    </table>
+
+    <!-- pagination -->
+    <div id="pagination" style="margin-top:8px; display:flex; gap:8px; align-items:center;"></div>
 </body>
 </html>

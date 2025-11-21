@@ -41,7 +41,7 @@ function closeMenuPopup() {
     addMenuPopup.style.display = 'none';
 }
 
-async function addMenuItem() {
+async function addMenuItem1() {
     let imageFileName = menuImage.files[0] ? menuImage.files[0].name : 'default.png';
     
     await fetch('/api/menu', {
@@ -56,6 +56,61 @@ async function addMenuItem() {
     closeMenuPopup();
     loadMenu();
 }
+
+// ...existing code...
+async function addMenuItem() {
+    const name = menuName.value.trim();
+    const priceVal = menuPrice.value;
+
+    if (!name) {
+        alert('Please enter a name');
+        return;
+    }
+    const price = parseFloat(priceVal);
+    if (isNaN(price)) {
+        alert('Please enter a valid price');
+        return;
+    }
+
+    try {
+        // check duplicates
+        const resGet = await fetch('/api/menu');
+        if (!resGet.ok) throw new Error('Failed to fetch menu');
+        const menu = await resGet.json();
+        const exists = menu.some(item => item.name && item.name.trim().toLowerCase() === name.toLowerCase());
+        if (exists) {
+            alert('A menu item with this name already exists');
+            return;
+        }
+
+        const imageFileName = (menuImage && menuImage.files[0]) ? menuImage.files[0].name : 'default.png';
+
+        const res = await fetch('/api/menu', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, price, image: imageFileName })
+        });
+
+        if (!res.ok) {
+            const text = await res.text().catch(()=>null);
+            console.error('Add item failed:', res.status, text);
+            alert('Failed to add menu item (server error). See console.');
+            return;
+        }
+
+        // success: reset inputs, close popup, reload list
+        menuName.value = '';
+        menuPrice.value = '';
+        if (menuImage) menuImage.value = '';
+        closeMenuPopup();
+        await loadMenu();
+    } catch (err) {
+        console.error('Error in addMenuItem:', err);
+        alert('Error adding menu item. See console for details.');
+    }
+}
+// ...existing code...
+
 
 async function editMenu(index, key, value) {
     let data = {};
