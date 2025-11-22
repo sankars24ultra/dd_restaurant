@@ -71,6 +71,11 @@ flask run --host=0.0.0.0 --port=8070
 			```sh
 			flask run --host=0.0.0.0
 			```
+   - Or, follow below commands to run application and make accessible on other devices connected on same network
+			```
+			export FLASK_APP=server.py
+			flask run --host=0.0.0.0 --port=8070
+			```
 
 5. **Open your browser and go to:**
 		- [http://localhost:5000](http://localhost:5000) (or the port shown in your terminal)
