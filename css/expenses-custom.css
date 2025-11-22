@@ -1,0 +1,54 @@
+button, .add-expense-btn {
+    font-family: Menlo, monospace !important;
+}
+/* Custom styles for Expenses page extracted from expenses.html */
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #aaa;
+    z-index: 1000;
+}
+
+#delete-confirm-popup h3 {
+    color: #d32f2f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+}
+#delete-confirm-popup h3 span {
+    font-size: 22px;
+    vertical-align: middle;
+}
+#delete-confirm-details {
+    margin-bottom: 16px;
+    font-size: 15px;
+    color: #333;
+}
+#confirmDeleteBtn {
+    background: #ff5f1f;
+    color: #fff;
+    font-family: Menlo, monospace;
+    font-weight: bold;
+    padding: 6px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+#cancelDeleteBtn {
+    background: #eee;
+    color: #333;
+    font-family: Menlo, monospace;
+    font-weight: bold;
+    padding: 6px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
