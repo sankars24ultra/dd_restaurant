@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for
 import json
 import os
@@ -33,22 +32,50 @@ def save_expenses(data):
 def get_expenses():
     return jsonify(load_expenses())
 
+
 @app.route('/api/expenses', methods=['POST'])
 def add_expense():
     data = request.json
-    # Ensure 'pending' is always stored
     try:
         total = float(data.get('total', 0))
         paid = float(data.get('paid', 0))
-        data['pending'] = total - paid
+        pending = total - paid
     except Exception:
-        data['pending'] = 0
-    # Set createdDateTime and lastUpdateDateTime
+        total = paid = pending = 0
+
     now = datetime.datetime.utcnow().isoformat()
-    data['createdDateTime'] = now
-    data['lastUpdateDateTime'] = now
     expenses = load_expenses()
-    expenses.append(data)
+
+    # If fully paid or no pending, add as single entry
+    if pending <= 0.00001:  # allow for float rounding
+        entry = dict(data)
+        entry['total'] = total
+        entry['paid'] = paid
+        entry['pending'] = 0
+        entry['createdDateTime'] = now
+        entry['lastUpdateDateTime'] = now
+        expenses.append(entry)
+    else:
+        # Add paid entry (if paid > 0)
+        if paid > 0:
+            paid_entry = dict(data)
+            paid_entry['total'] = paid
+            paid_entry['paid'] = paid
+            paid_entry['pending'] = 0
+            paid_entry['createdDateTime'] = now
+            paid_entry['lastUpdateDateTime'] = now
+            expenses.append(paid_entry)
+        # Add pending entry
+        pending_entry = dict(data)
+        pending_entry['total'] = pending
+        pending_entry['paid'] = 0
+        pending_entry['pending'] = pending
+        pending_entry['cash'] = 0
+        pending_entry['gpay'] = 0
+        pending_entry['createdDateTime'] = now
+        pending_entry['lastUpdateDateTime'] = now
+        expenses.append(pending_entry)
+
     save_expenses(expenses)
     return jsonify({'status': 'success', 'expenses': expenses})
 
@@ -57,18 +84,48 @@ def update_expense(index):
     expenses = load_expenses()
     if 0 <= index < len(expenses):
         data = request.json
-        # Ensure 'pending' is always stored
         try:
             total = float(data.get('total', 0))
             paid = float(data.get('paid', 0))
-            data['pending'] = total - paid
+            pending = total - paid
         except Exception:
-            data['pending'] = 0
-        # Preserve createdDateTime, update lastUpdateDateTime
+            total = paid = pending = 0
+
+        now = datetime.datetime.utcnow().isoformat()
         old = expenses[index]
-        data['createdDateTime'] = old.get('createdDateTime', old.get('date', ''))
-        data['lastUpdateDateTime'] = datetime.datetime.utcnow().isoformat()
-        expenses[index] = data
+        # Remove the old entry
+        expenses.pop(index)
+
+        # If fully paid or no pending, add as single entry
+        if pending <= 0.00001:
+            entry = dict(data)
+            entry['total'] = total
+            entry['paid'] = paid
+            entry['pending'] = 0
+            entry['createdDateTime'] = old.get('createdDateTime', old.get('date', ''))
+            entry['lastUpdateDateTime'] = now
+            expenses.append(entry)
+        else:
+            # Add paid entry (if paid > 0)
+            if paid > 0:
+                paid_entry = dict(data)
+                paid_entry['total'] = paid
+                paid_entry['paid'] = paid
+                paid_entry['pending'] = 0
+                paid_entry['createdDateTime'] = old.get('createdDateTime', old.get('date', ''))
+                paid_entry['lastUpdateDateTime'] = now
+                expenses.append(paid_entry)
+            # Add pending entry
+            pending_entry = dict(data)
+            pending_entry['total'] = pending
+            pending_entry['paid'] = 0
+            pending_entry['pending'] = pending
+            pending_entry['cash'] = 0
+            pending_entry['gpay'] = 0
+            pending_entry['createdDateTime'] = old.get('createdDateTime', old.get('date', ''))
+            pending_entry['lastUpdateDateTime'] = now
+            expenses.append(pending_entry)
+
         save_expenses(expenses)
         return jsonify({'status': 'success', 'expenses': expenses})
     return jsonify({'status': 'error', 'message': 'Index out of range'}), 400
@@ -259,6 +316,12 @@ def delete_menu(index):
         save_menu(menu)
         return jsonify({"status": "success", "menu": menu})
     return jsonify({"status": "error", "message": "Index out of range"}), 400
+
+
+# Alias for backward compatibility with summary.js
+@app.route('/api/orderHistory', methods=['GET'])
+def get_order_history():
+    return jsonify(load_orders())
 
 
 # add these routes (place after menu routes)
