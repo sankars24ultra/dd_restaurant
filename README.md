@@ -53,6 +53,15 @@ python -m pip install flask flask-cors
 			$env:FLASK_ENV = "development"
 			```
 
+
+# Run on Flask
+follow below commands to run application and make accessible on other devices connected on same network
+```
+export FLASK_APP=server.py
+flask run --host=0.0.0.0 --port=8070
+```
+
+
 4. **Run the Flask application:**
 		- Use the following command:
 			```sh
