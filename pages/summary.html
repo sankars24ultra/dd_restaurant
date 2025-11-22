@@ -1,17 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Summary</title>
+        <meta charset="UTF-8">
+        <title>Summary</title>
+        <link rel="stylesheet" href="../css/summary.css">
 </head>
 <body>
 <h2>Summary</h2>
-<label>Start Date: <input type="date" id="start-date"></label>
-<label>End Date: <input type="date" id="end-date"></label>
-<button onclick="loadSummary()">Show Summary</button>
-
-<div id="summary-report"></div>
-
+<div class="summary-controls">
+    <button id="summaryTodayBtn">Today</button>
+    <button id="summaryWeekBtn">This Week</button>
+    <button id="summaryMonthBtn">This Month</button>
+    <label>Start Date: <input type="date" id="start-date"></label>
+    <label>End Date: <input type="date" id="end-date"></label>
+    <button id="summaryCustomBtn">Show Range</button>
+    <button id="summaryClearBtn">Clear</button>
+    <button id="summaryExportBtn">Export CSV</button>
+</div>
+<!--div id="summary-report"></div-->
+<div class="summary-vertical-container">
+    <div id="summary-table-container"></div>
+        <div id="summary-chart-row" style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;justify-content:center;width:100%;">
+            <div id="summary-chart-container"></div>
+            <div id="donut-charts-container" class="donut-charts-grid"></div>
+                <style>
+                .donut-charts-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 24px;
+                    width: 100%;
+                    justify-items: center;
+                    align-items: start;
+                }
+                @media (max-width: 1100px) {
+                    .donut-charts-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                }
+                @media (max-width: 700px) {
+                    .donut-charts-grid {
+                        grid-template-columns: 1fr;
+                    }
+                }
+                </style>
+        </div>
+</div>
+    
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="../js/summaryCharts.js"></script>
 <script src="../../js/summary.js"></script>
 </body>
 </html>
