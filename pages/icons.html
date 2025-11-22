@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Menu Icons</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/icons.js" defer></script>
+</head>
+<body>
+    <h2>Menu Icons</h2>
+    <div>
+        <button id="openAddIconPopupBtn">Add Icon</button>
+    </div>
+    <div id="addIconPopup" class="popup" style="display:none;" role="dialog" aria-modal="true" aria-hidden="true">
+        <h3>Add New Icon</h3>
+        <input type="file" id="iconUpload" accept="image/*">
+        <div id="iconPreviewContainer" style="margin:10px 0;display:none;">
+            <img id="iconPreview" src="" alt="Preview" style="max-width:80px;max-height:80px;border:1px solid #ccc;">
+        </div>
+        <div style="margin-top:10px;">
+            <button id="saveIconBtn">Save</button>
+            <button id="cancelIconBtn">Cancel</button>
+        </div>
+    </div>
+    <div id="iconsTiles" class="tiles-grid" aria-live="polite"></div>
+</body>
+</html>

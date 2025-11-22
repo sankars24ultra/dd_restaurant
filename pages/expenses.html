@@ -1,31 +1,162 @@
-<!DOCTYPE html>
-<html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Expenses</title>
+    <title>Expenses Tracker</title>
     <link rel="stylesheet" href="../../css/style.css">
-    <style>
-        .popup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px #aaa; z-index:1000; }
-    </style>
+    <link rel="stylesheet" href="../../css/expenses-custom.css">
 </head>
+
 <body>
-<h2>Expenses</h2>
-<button onclick="openExpensePopup()">Add Expense</button>
-<table border="1" width="100%" id="expenses-table">
-    <tr>
-        <th>Name</th><th>Total</th><th>Paid</th><th>Pending</th><th>Date</th><th>Action</th>
-    </tr>
-</table>
+        <!-- Delete confirmation popup -->
+        <div id="delete-confirm-popup" class="popup" style="display:none;min-width:320px;max-width:90vw;">
+            <h3><span>&#9888;&#65039;</span> Delete Expense</h3>
+            <div id="delete-confirm-details"></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button id="confirmDeleteBtn">Delete</button>
+                <button id="cancelDeleteBtn">Cancel</button>
+            </div>
+        </div>
+    <h2>Expenses Tracker</h2>
 
-<div id="expense-popup" class="popup">
-    <h3>Add Expense</h3>
-    <input type="text" id="expense-name" placeholder="Name"><br><br>
-    <input type="number" id="expense-total" placeholder="Total"><br><br>
-    <input type="number" id="expense-paid" placeholder="Paid"><br><br>
-    <button onclick="saveExpense()">Save</button>
-    <button onclick="closeExpensePopup()">Cancel</button>
-</div>
 
-<script src="../../js/expenses.js"></script>
+    <!-- First line: Add Expense and summary -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+        <div>
+            <button id="openExpensePopupBtn" class="add-expense-btn">
+                Add Expense
+            </button>
+        </div>
+        <div class="expense-summary-boxes" style="display:flex;gap:12px;align-items:center;">
+            <div class="summary-box" id="expenseTotalBox"
+                style="border-radius:16px;padding:10px 18px;background:#f0f4ff;font-weight:bold;box-shadow:0 1px 4px #c0d0ff;">
+                Total: ₹<span id="expenseTotalValue">0.00</span>
+            </div>
+            <div class="summary-box" id="expensePaidBox"
+                style="border-radius:16px;padding:10px 18px;background:#e7ffe7;font-weight:bold;box-shadow:0 1px 4px #b0e0b0;">
+                Paid: ₹<span id="expensePaidValue">0.00</span>
+            </div>
+            <div class="summary-box" id="expensePendingBox"
+                style="border-radius:16px;padding:10px 18px;background:#fff7e0;font-weight:bold;box-shadow:0 1px 4px #ffe0a0;">
+                Pending: ₹<span id="expensePendingValue">0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second line: Filters, Show Pending, Export, Pagination -->
+    <div
+        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 8px; font-family: Menlo, monospace;">
+            <label style="display:inline-flex;align-items:center;gap:4px;">From: <input type="date" id="expenseFromDate" style="margin-right:8px;font-family:Menlo,monospace;"></label>
+            <label style="display:inline-flex;align-items:center;gap:4px;">To: <input type="date" id="expenseToDate" style="margin-right:8px;font-family:Menlo,monospace;"></label>
+            <button id="expenseApplyFilterBtn" type="button" style="font-family:Menlo,monospace;">Filter</button>
+            <button id="expenseClearFilterBtn" type="button" style="font-family:Menlo,monospace;">Clear</button>
+            <button id="togglePendingBtn" type="button" style="background-color:#ffc107;font-family:Menlo,monospace;">Show Pending</button>
+            <button id="expenseExportCsvBtn" type="button" style="font-family:Menlo,monospace;">Export CSV</button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label class="rows-per-page-label">Rows per page:</label>
+            <select id="expensePageSizeSelect" class="rows-per-page-select">
+                <option selected>10</option>
+                <option>20</option>
+                <option>50</option>
+            </select>
+        </div>
+        
+        <table border="1" width="100%" id="expenses-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Person</th>
+                    <th>Total</th>
+                    <th>Paid</th>
+                    <th>Pending</th>
+                    <th>Cash</th>
+                    <th>GPay</th>
+                    <th>Created At</th>
+                    <th>Last Updated</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+
+        <div id="expense-popup" class="popup" style="display:none;min-width:320px;">
+            <h3 id="expense-popup-title">Add Expense</h3>
+            <div class="order-field">
+                <label for="expense-name">Name</label>
+                <input type="text" id="expense-name" placeholder="Expense name">
+            </div>
+            <div class="order-field">
+                <label for="expense-person">Person</label>
+                <input type="text" id="expense-person" placeholder="Person name">
+            </div>
+            <div class="order-row-two" style="gap:8px;align-items:end;">
+                <div>
+                    <label for="expense-total">Total</label>
+                    <input type="number" id="expense-total" min="0" step="0.01" placeholder="Total amount"
+                        style="width:90%;">
+                </div>
+                <div>
+                    <label for="expense-datetime">Date/Time</label>
+                    <input type="text" id="expense-datetime" placeholder="Select date & time" style="width:90%;">
+                </div>
+            </div>
+            <div class="order-row-two">
+                <div>
+                    <label for="expense-cash">Cash</label>
+                    <input type="number" id="expense-cash" min="0" step="0.01" placeholder="Cash">
+                </div>
+                <div>
+                    <label for="expense-gpay">GPay</label>
+                    <input type="number" id="expense-gpay" min="0" step="0.01" placeholder="GPay">
+                </div>
+            </div>
+            <div class="order-row-two">
+                <div>
+                    <label for="expense-paid">Paid</label>
+                    <input type="text" id="expense-paid" readonly>
+                </div>
+                <div>
+                    <label for="expense-pending">Pending</label>
+                    <input type="text" id="expense-pending" readonly>
+                </div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:10px;justify-content:flex-end;">
+                <button id="saveExpenseBtn">Save</button>
+                <button id="cancelExpenseBtn">Cancel</button>
+            </div>
+        </div>
+
+
+        <!-- Pagination and page info below the table -->
+        <div style="display:flex; justify-content:center; margin-top:16px;">
+            <div class="pagination-container">
+                <div id="expensePagination" style="display:flex; gap:8px; align-items:center;"></div>
+                <span id="expensePageInfo" style="font-size:14px; color:#555;"></span>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="../../js/expenses.js"></script>
+    <script src="../../js/expensesHistory.js"></script>
+    <script src="../../js/expenses-custom.js"></script>
+    <script>
+        // Initialize flatpickr for date/time picker
+        document.addEventListener('DOMContentLoaded', function () {
+            flatpickr("#expense-datetime", {
+                enableTime: true,
+                dateFormat: "Y-m-d h:i:S K", // 12-hour with seconds and AM/PM
+                time_24hr: false,
+                minuteIncrement: 1,
+                secondIncrement: 1,
+                defaultDate: new Date(),
+            });
+        });
+    </script>
 </body>
+
 </html>

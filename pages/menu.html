@@ -1,3 +1,36 @@
+        <!-- Edit Menu Item Popup -->
+        <div id="editMenuPopup" class="popup edit-menu-popup" style="display:none;z-index:2100;min-width:320px;">
+            <h3>Edit Menu Item</h3>
+            <div class="edit-field">
+                <label for="editMenuName">Name:</label>
+                <input type="text" id="editMenuName">
+            </div>
+            <div class="edit-field">
+                <label for="editMenuPrice">Price:</label>
+                <input type="number" id="editMenuPrice">
+            </div>
+            <div class="edit-field">
+                <label for="editMenuImage">Image:</label>
+                <select id="editMenuImage">
+                    <option value="default.png">default.png</option>
+                    <option value="dosa.png">dosa.png</option>
+                    <option value="idly.png">idly.png</option>
+                </select>
+            </div>
+            <div class="edit-popup-actions">
+                <button id="editMenuCancel" class="edit-cancel">Cancel</button>
+                <button id="editMenuUpdate" class="edit-update" disabled>Update</button>
+            </div>
+        </div>
+    <!-- Price Update Confirmation Modal -->
+    <div id="priceConfirmModal" class="popup" style="display:none;z-index:2000;">
+        <h3>Confirm Price Update</h3>
+        <div id="priceConfirmText" style="margin-bottom:16px;"></div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;">
+            <button id="priceConfirmCancel" style="background:#aaa;">Cancel</button>
+            <button id="priceConfirmOk" style="background:#28a745;">Update</button>
+        </div>
+    </div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,20 +43,11 @@
     <h2>Menu</h2>
     <button onclick="openMenuPopup()">Add Menu</button>
 
-    <!-- Menu Table -->
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Image</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="menuTableBody">
-            <!-- Menu items will be injected here by JS -->
-        </tbody>
-    </table>
+
+    <!-- Menu Tiles Grid -->
+    <div class="tiles-grid" id="menuTilesGrid">
+        <!-- Menu items will be injected here by JS as tiles -->
+    </div>
 
     <!-- Add Menu Popup -->
     <!-- menu.html -->

@@ -16,23 +16,20 @@
     <div id="menuTiles" class="tiles-grid" aria-live="polite"></div>
 
     <!-- Order Popup -->
-    <div id="orderPopup" class="popup" role="dialog" aria-hidden="true">
+    <div id="orderPopup" class="popup order-popup" role="dialog" aria-hidden="true">
         <h3>Create Order</h3>
-
-        <div class="row">
-            <label>Order Name</label>
+        <div class="order-field">
+            <label for="orderName">Order Name</label>
             <input id="orderName" type="text" placeholder="Customer or order name" value="Customer">
         </div>
-
-        <div>
+        <div class="order-field">
             <label>Order Menus</label>
-            <table id="orderMenusTable">
+            <table id="orderMenusTable" class="order-table">
                 <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
-
-        <div class="row two">
+        <div class="order-row-two">
             <div>
                 <label>Total</label>
                 <input id="orderTotal" class="readonly" type="text" readonly>
@@ -42,30 +39,28 @@
                 <input id="orderDateTime" class="readonly" type="text" readonly>
             </div>
         </div>
-
         <fieldset class="payment">
             <legend>Payment</legend>
-            <div class="row">
+            <div class="order-field">
                 <label>Cash</label>
                 <input id="payCash" type="number" min="0" step="0.01" value="0">
             </div>
-            <div class="row">
+            <div class="order-field">
                 <label>GPay</label>
                 <input id="payGpay" type="number" min="0" step="0.01" value="0">
             </div>
-            <div class="row">
+            <div class="order-field">
                 <label>Remaining</label>
                 <input id="payRemaining" class="readonly" type="text" readonly>
             </div>
-            <div class="row">
+            <div class="order-field">
                 <label>Pending</label>
                 <input id="payPending" class="readonly" type="text" readonly>
             </div>
         </fieldset>
-
-        <div class="actions">
-            <button type="button" id="confirmOrderBtn">Confirm Order</button>
-            <button type="button" onclick="closeOrderPopup()">Cancel</button>
+        <div class="order-actions">
+            <button type="button" id="confirmOrderBtn" class="order-confirm">Confirm Order</button>
+            <button type="button" onclick="closeOrderPopup()" class="order-cancel">Cancel</button>
         </div>
     </div>
 </body>
