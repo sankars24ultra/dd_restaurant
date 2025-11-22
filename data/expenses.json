@@ -1,1 +1,26 @@
-[]
+[
+    {
+        "name": "EB",
+        "person": "e",
+        "total": 100,
+        "paid": 100,
+        "cash": 100,
+        "gpay": 0,
+        "pending": 0.0,
+        "date": "2025-11-22T03:53:00.000Z",
+        "createdDateTime": "2025-11-22T03:53:58.688040",
+        "lastUpdateDateTime": "2025-11-22T03:53:58.688040"
+    },
+    {
+        "name": "Cylinder",
+        "person": "v",
+        "total": 1000,
+        "paid": 500,
+        "cash": 500,
+        "gpay": 0,
+        "pending": 500.0,
+        "date": "2025-11-22T04:33:41.000Z",
+        "createdDateTime": "2025-11-22T04:33:50.710697",
+        "lastUpdateDateTime": "2025-11-22T04:33:50.710697"
+    }
+]
