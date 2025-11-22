@@ -1,4 +1,4 @@
-const menuTable = document.getElementById('menuTableBody');
+const menuTilesGrid = document.getElementById('menuTilesGrid');
 const addMenuPopup = document.getElementById('addMenuPopup');
 const menuName = document.getElementById('menuName');
 const menuPrice = document.getElementById('menuPrice');
@@ -9,22 +9,95 @@ async function loadMenu() {
         const res = await fetch('/api/menu');
         const menu = await res.json();
 
-        menuTable.innerHTML = '';
-
-        // Ensure we loop through menu items correctly
+        menuTilesGrid.innerHTML = '';
         menu.forEach(function(item, index) {
-            // Use correct path for images
-            let imagePath = item.image ? `/pages/images/menu/${item.image}` : '/pages/images/menu/default.png';
-            let row = document.createElement('tr');
-
-            row.innerHTML = `
-                <td contenteditable="true" onblur="editMenu(${index}, 'name', this.innerText)">${item.name}</td>
-                <td contenteditable="true" onblur="editMenu(${index}, 'price', this.innerText)">${item.price}</td>
-                <td><img src="${imagePath}" width="50"></td>
-                <td><button onclick="deleteMenu(${index})">Delete</button></td>
+            let imagePath = item.image ? `/pages/images/menuItems/${item.image}` : '/pages/images/menuItems/default.png';
+            let tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.innerHTML = `
+                <div style="width:100%;height:90px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f8f8f8;border-radius:6px;">
+                    <img src="${imagePath}" alt="${item.name}" style="max-width:80px;max-height:80px;object-fit:contain;display:block;">
+                </div>
+                <div class="tile-row" style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px 0;gap:8px;">
+                    <span class="tile-name" style="font-size:1.05em;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</span>
+                    <span class="tile-sep" style="color:#bbb;font-size:1.2em;">•</span>
+                    <span class="tile-price" style="font-weight:bold;color:#1abc9c;font-size:1.15em;">₹${item.price}</span>
+                </div>
+                <div style="display:flex;gap:8px;justify-content:center;">
+                    <button class="edit-btn" data-index="${index}" style="background:#007bff;">Edit</button>
+                    <button onclick="deleteMenu(${index})" style="background:#dc3545;">Delete</button>
+                </div>
             `;
-            menuTable.appendChild(row);
+            menuTilesGrid.appendChild(tile);
         });
+        // Attach edit button listeners
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.onclick = function() { openEditMenuPopup(parseInt(this.getAttribute('data-index'))); };
+        });
+    // Edit Menu Popup logic
+    let editMenuState = { index: null, orig: {}, changed: false };
+
+    window.openEditMenuPopup = async function(index) {
+        // Fetch menu item
+        const menuRes = await fetch('/api/menu');
+        const menu = await menuRes.json();
+        const item = menu[index];
+        if (!item) return;
+        editMenuState = { index, orig: { ...item }, changed: false };
+
+        // Fetch available images for dropdown
+        const imgRes = await fetch('/api/menu-icons');
+        const images = await imgRes.json();
+        const select = document.getElementById('editMenuImage');
+        select.innerHTML = '';
+        // Always include default.png
+        const allImages = ['default.png', ...images.filter(i => i !== 'default.png')];
+        allImages.forEach(img => {
+            const opt = document.createElement('option');
+            opt.value = img;
+            opt.textContent = img;
+            select.appendChild(opt);
+        });
+
+        document.getElementById('editMenuName').value = item.name;
+        document.getElementById('editMenuPrice').value = item.price;
+        document.getElementById('editMenuImage').value = item.image || 'default.png';
+        document.getElementById('editMenuUpdate').disabled = true;
+        document.getElementById('editMenuPopup').style.display = 'block';
+    };
+
+    function closeEditMenuPopup() {
+        document.getElementById('editMenuPopup').style.display = 'none';
+        editMenuState = { index: null, orig: {}, changed: false };
+    }
+
+    function checkEditMenuChanged() {
+        const name = document.getElementById('editMenuName').value.trim();
+        const price = document.getElementById('editMenuPrice').value;
+        const image = document.getElementById('editMenuImage').value;
+        const changed = name !== editMenuState.orig.name || price != editMenuState.orig.price || image !== (editMenuState.orig.image || 'default.png');
+        document.getElementById('editMenuUpdate').disabled = !changed;
+        editMenuState.changed = changed;
+    }
+
+    document.getElementById('editMenuName').addEventListener('input', checkEditMenuChanged);
+    document.getElementById('editMenuPrice').addEventListener('input', checkEditMenuChanged);
+    document.getElementById('editMenuImage').addEventListener('change', checkEditMenuChanged);
+    document.getElementById('editMenuCancel').onclick = closeEditMenuPopup;
+    document.getElementById('editMenuUpdate').onclick = async function() {
+        if (!editMenuState.changed) return;
+        const name = document.getElementById('editMenuName').value.trim();
+        const price = parseFloat(document.getElementById('editMenuPrice').value);
+        const image = document.getElementById('editMenuImage').value;
+        const data = { name, price, image };
+        await fetch(`/api/menu/${editMenuState.index}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        closeEditMenuPopup();
+        loadMenu();
+    };
     } catch (err) {
         console.error('Error loading menu:', err);
     }
@@ -112,15 +185,45 @@ async function addMenuItem() {
 // ...existing code...
 
 
-async function editMenu(index, key, value) {
-    let data = {};
-    data[key] = key === 'price' ? parseFloat(value) : value;
-    await fetch(`/api/menu/${index}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    });
+
+
+// Custom modal confirmation for price update
+let priceModalState = { index: null, el: null, oldPrice: null, newPrice: null };
+
+function showPriceConfirmModal(index, el, oldPrice) {
+    let newValue = el.innerText.replace(/[^\d.]/g, '');
+    let newPrice = parseFloat(newValue);
+    let oldPriceNum = parseFloat(oldPrice);
+    if (isNaN(newPrice) || newPrice === oldPriceNum) return;
+
+    priceModalState = { index, el, oldPrice: oldPriceNum, newPrice };
+    document.getElementById('priceConfirmText').innerHTML = `Update price for this item?<br>Old Price: <b>₹${oldPriceNum}</b><br>New Price: <b>₹${newPrice}</b>`;
+    document.getElementById('priceConfirmModal').style.display = 'block';
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ...existing code...
+
+    // Modal button handlers
+    document.getElementById('priceConfirmCancel').onclick = function() {
+        if (priceModalState.el) priceModalState.el.innerText = `₹${priceModalState.oldPrice}`;
+        document.getElementById('priceConfirmModal').style.display = 'none';
+        priceModalState = { index: null, el: null, oldPrice: null, newPrice: null };
+    };
+    document.getElementById('priceConfirmOk').onclick = async function() {
+        if (priceModalState.index != null && priceModalState.el) {
+            let data = { price: priceModalState.newPrice };
+            await fetch(`/api/menu/${priceModalState.index}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            priceModalState.el.innerText = `₹${priceModalState.newPrice}`;
+        }
+        document.getElementById('priceConfirmModal').style.display = 'none';
+        priceModalState = { index: null, el: null, oldPrice: null, newPrice: null };
+    };
+});
 
 async function deleteMenu(index) {
     await fetch(`/api/menu/${index}`, { method: 'DELETE' });

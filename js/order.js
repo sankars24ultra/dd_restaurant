@@ -13,8 +13,9 @@ if (!window.__orderInitialized) {
         const payRemaining = document.getElementById('payRemaining');
         const payPending = document.getElementById('payPending');
         const confirmBtn = document.getElementById('confirmOrderBtn');
-        // disable by default until amount covers total
-        confirmBtn.disabled = true;
+        const placeOrderBtn = document.querySelector('button[onclick="openOrderPopup()"]');
+        // disable by default until at least one item is selected
+        if (placeOrderBtn) placeOrderBtn.disabled = true;
 
         let currentTotal = 0;
         let currentItems = [];
@@ -28,43 +29,74 @@ if (!window.__orderInitialized) {
                 const menu = await res.json();
                 tilesContainer.innerHTML = '';
                 menu.forEach((item, idx) => {
-                    const imagePath = item.image ? `/pages/images/menu/${item.image}` : '/pages/images/menu/default.png';
+                    const imagePath = item.image ? `/pages/images/menuItems/${item.image}` : '/pages/images/menuItems/default.png';
                     const tile = document.createElement('div');
-                    tile.className = 'tile';
+                    tile.className = 'tile order-tile';
                     tile.innerHTML = `
-                        <div style="text-align:left;"><input type="checkbox" class="order-item-checkbox" data-index="${idx}" data-name="${escapeHtml(item.name)}" data-price="${item.price}" /></div>
-                        <img src="${imagePath}" alt="${escapeHtml(item.name)}">
-                        <div class="meta">
-                            <div style="font-weight:600;">${escapeHtml(item.name)}</div>
-                            <div>Price: ₹${formatMoney(item.price)}</div>
+                        <div class="order-tile-top">
+                            <img src="${imagePath}" alt="${escapeHtml(item.name)}">
                         </div>
-                        <div class="controls">
-                            <div>
-                                Qty <input type="number" class="item-qty" value="1" min="1" style="width:60px">
-                            </div>
+                        <div class="order-tile-row">
+                            <span class="order-tile-name">${escapeHtml(item.name)}</span>
+                            <span class="order-tile-sep">•</span>
+                            <span class="order-tile-price">₹${formatMoney(item.price)}</span>
+                        </div>
+                        <div class="order-tile-controls">
+                            <button class="qty-btn qty-decrease" data-idx="${idx}">-</button>
+                            <span class="qty-value" id="qty-value-${idx}">0</span>
+                            <button class="qty-btn qty-increase" data-idx="${idx}">+</button>
                         </div>
                     `;
-                    const cb = tile.querySelector('.order-item-checkbox');
-                    cb.addEventListener('change', (e) => tile.classList.toggle('selected', e.target.checked));
                     tilesContainer.appendChild(tile);
                 });
+
+                // Add event listeners for quantity buttons
+                const quantities = Array(menu.length).fill(0);
+                function updatePlaceOrderBtnState() {
+                    if (!placeOrderBtn) return;
+                    const hasQty = quantities.some(q => q > 0);
+                    placeOrderBtn.disabled = !hasQty;
+                }
+                document.querySelectorAll('.qty-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        const idx = parseInt(this.getAttribute('data-idx'));
+                        if (this.classList.contains('qty-increase')) {
+                            quantities[idx]++;
+                        } else if (this.classList.contains('qty-decrease')) {
+                            if (quantities[idx] > 0) quantities[idx]--;
+                        }
+                        document.getElementById(`qty-value-${idx}`).innerText = quantities[idx];
+                        // Optionally, highlight tile if qty > 0
+                        const tile = document.getElementById(`qty-value-${idx}`).closest('.order-tile');
+                        if (quantities[idx] > 0) tile.classList.add('selected');
+                        else tile.classList.remove('selected');
+                        updatePlaceOrderBtnState();
+                    };
+                });
+
+                // Store for use in collectSelectedItemsOnPage
+                window.__orderQuantities = quantities;
+                // Initial state
+                updatePlaceOrderBtnState();
             } catch (err) {
                 console.error('Failed to load menu for tiles', err);
             }
         }
 
         function collectSelectedItemsOnPage() {
-            const checked = Array.from(document.querySelectorAll('.order-item-checkbox:checked'));
-            return checked.map(cb => {
-                const tile = cb.closest('.tile');
-                const qtyInput = tile ? tile.querySelector('.item-qty') : null;
-                const qty = qtyInput ? Number(qtyInput.value || 1) : 1;
-                return {
-                    name: cb.dataset.name || 'Item',
-                    qty: qty,
-                    price: parseFloat(cb.dataset.price || 0)
-                };
+            const menu = window.__orderQuantities ? window.__orderQuantities : [];
+            const tiles = document.querySelectorAll('.order-tile');
+            const items = [];
+            tiles.forEach((tile, idx) => {
+                const qty = window.__orderQuantities && window.__orderQuantities[idx] ? window.__orderQuantities[idx] : 0;
+                if (qty > 0) {
+                    const name = tile.querySelector('.order-tile-name').innerText;
+                    const priceText = tile.querySelector('.order-tile-price').innerText.replace(/[^\d.]/g, '');
+                    const price = parseFloat(priceText);
+                    items.push({ name, qty, price });
+                }
             });
+            return items;
         }
 
         function updatePayments() {

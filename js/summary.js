@@ -1,3 +1,17 @@
+// Helper functions for LocalStorage CRUD (if not already defined)
+if (typeof getData !== 'function') {
+    function getData(key) {
+        let data = localStorage.getItem(key);
+        if (data) return JSON.parse(data);
+        return [];
+    }
+}
+if (typeof formatDate !== 'function') {
+    function formatDate(date) {
+        let d = new Date(date);
+        return d.toISOString().split('T')[0];
+    }
+}
 function loadSummary() {
     let start = document.getElementById('start-date').value;
     let end = document.getElementById('end-date').value;
