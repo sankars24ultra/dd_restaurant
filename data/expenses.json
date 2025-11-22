@@ -1,26 +1,50 @@
 [
     {
         "name": "EB",
-        "person": "e",
-        "total": 100,
-        "paid": 100,
-        "cash": 100,
+        "person": "v",
+        "total": 800.0,
+        "paid": 800.0,
+        "cash": 800,
         "gpay": 0,
-        "pending": 0.0,
-        "date": "2025-11-22T03:53:00.000Z",
-        "createdDateTime": "2025-11-22T03:53:58.688040",
-        "lastUpdateDateTime": "2025-11-22T03:53:58.688040"
+        "pending": 0,
+        "date": "2025-11-20T18:48:13.000Z",
+        "createdDateTime": "2025-11-20T18:48:21.991086",
+        "lastUpdateDateTime": "2025-11-20T18:48:21.991086"
     },
     {
-        "name": "Cylinder",
+        "name": "EB",
         "person": "v",
-        "total": 1000,
-        "paid": 500,
-        "cash": 500,
+        "total": 100.0,
+        "paid": 100.0,
+        "cash": 100,
         "gpay": 0,
-        "pending": 500.0,
-        "date": "2025-11-22T04:33:41.000Z",
-        "createdDateTime": "2025-11-22T04:33:50.710697",
-        "lastUpdateDateTime": "2025-11-22T04:33:50.710697"
+        "pending": 0,
+        "date": "2025-11-23T00:48:21.000Z",
+        "createdDateTime": "2025-11-22T18:48:21.991086",
+        "lastUpdateDateTime": "2025-11-22T18:55:27.349646"
+    },
+    {
+        "name": "EB",
+        "person": "v",
+        "total": 100.0,
+        "paid": 100.0,
+        "cash": 100,
+        "gpay": 0,
+        "pending": 0,
+        "date": "2025-11-23T00:48:21.000Z",
+        "createdDateTime": "2025-11-22T18:48:21.991086",
+        "lastUpdateDateTime": "2025-11-22T20:19:43.543285"
+    },
+    {
+        "name": "test",
+        "person": "v",
+        "total": 100.0,
+        "paid": 0,
+        "cash": 0,
+        "gpay": 0,
+        "pending": 100.0,
+        "date": "2025-11-22T20:22:46.000Z",
+        "createdDateTime": "2025-11-22T20:22:53.681899",
+        "lastUpdateDateTime": "2025-11-22T20:22:53.681899"
     }
 ]

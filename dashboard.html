@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -18,7 +19,7 @@
                 <li><a href="pages/expenses.html" class="menu-link">Expenses</a></li>
                 <li><a href="pages/summary.html" class="menu-link">Summary</a></li>
                 <li><a href="pages/icons.html" class="menu-link">Icons</a></li>
-                <li><button id="logout-btn" style="width:100%;margin-top:20px;padding:10px;background:#dc3545;color:#fff;border:none;border-radius:5px;cursor:pointer;">Logout</button></li>
+                <li><button id="logout-btn">Logout</button></li>
             </ul>
         </nav>
 
@@ -29,13 +30,5 @@
     </div>
 
     <script src="js/dashboard.js"></script>
-    <script>
-    document.getElementById('logout-btn').onclick = async function() {
-        try {
-            await fetch('/logout', { method: 'POST' });
-        } catch (e) {}
-        window.location.href = 'index.html?logged_out=1';
-    };
-    </script>
 </body>
 </html>

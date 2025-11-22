@@ -1,3 +1,42 @@
+// --- Begin: Merged from expenses-custom.js ---
+// Custom delete confirmation popup logic for Expenses page
+let deleteExpenseIdx = null;
+window.confirmDeleteExpense = function(idx) {
+    // Find the expense item from allExpenses
+    const item = (window.allExpenses && window.allExpenses[idx]) ? window.allExpenses[idx] : null;
+    if (!item) return;
+    deleteExpenseIdx = idx;
+    // Fill details
+    document.getElementById('delete-confirm-details').innerHTML = `
+        <b>Name:</b> ${item.name || ''}<br>
+        <b>Person:</b> ${item.person || ''}<br>
+        <b>Total:</b> ₹${item.total || 0}<br>
+        <b>Paid:</b> ₹${item.paid || 0}<br>
+        <b>Pending:</b> ₹${(item.total - item.paid).toFixed(2)}<br>
+        <b>Date:</b> ${item.createdDateTime ? new Date(item.createdDateTime).toLocaleString() : (item.date ? new Date(item.date).toLocaleString() : '')}
+    `;
+    document.getElementById('delete-confirm-popup').style.display = 'block';
+};
+document.addEventListener('DOMContentLoaded', function() {
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    if (cancelDeleteBtn) {
+        cancelDeleteBtn.onclick = function() {
+            document.getElementById('delete-confirm-popup').style.display = 'none';
+            deleteExpenseIdx = null;
+        };
+    }
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.onclick = async function() {
+            if (deleteExpenseIdx !== null) {
+                await window.deleteExpense(deleteExpenseIdx);
+            }
+            document.getElementById('delete-confirm-popup').style.display = 'none';
+            deleteExpenseIdx = null;
+        };
+    }
+});
+// --- End: Merged from expenses-custom.js ---
 
 // Helper for formatting date/time
 function formatDateTime(dt) {
@@ -17,6 +56,7 @@ function openExpensePopup() {
     document.getElementById('expense-name').value = '';
     document.getElementById('expense-person').value = '';
     document.getElementById('expense-total').value = '';
+    document.getElementById('expense-total').readOnly = false;
     document.getElementById('expense-cash').value = '';
     document.getElementById('expense-gpay').value = '';
     // Set flatpickr datetime input to now
@@ -134,6 +174,7 @@ window.editExpensePopup = function(idx) {
     document.getElementById('expense-name').value = item.name || '';
     document.getElementById('expense-person').value = item.person || '';
     document.getElementById('expense-total').value = item.total || '';
+    document.getElementById('expense-total').readOnly = true;
     document.getElementById('expense-cash').value = item.cash || '';
     document.getElementById('expense-gpay').value = item.gpay || '';
     // Set flatpickr datetime input from createdDateTime (not editable on update)
@@ -146,6 +187,43 @@ window.editExpensePopup = function(idx) {
     }
     updatePaidAndPending();
     document.getElementById('expense-popup').style.display = 'block';
+
+    // Store original values for change detection
+    const original = {
+        name: item.name || '',
+        person: item.person || '',
+        total: String(item.total || ''),
+        cash: String(item.cash || ''),
+        gpay: String(item.gpay || ''),
+    };
+    const saveBtn = document.getElementById('saveExpenseBtn');
+    saveBtn.disabled = true;
+
+    function checkEditChanged() {
+        const name = document.getElementById('expense-name').value.trim();
+        const person = document.getElementById('expense-person').value.trim();
+        const total = document.getElementById('expense-total').value;
+        const cash = document.getElementById('expense-cash').value;
+        const gpay = document.getElementById('expense-gpay').value;
+        // Enable only if any field is changed and all required fields are filled
+        const changed = (
+            name !== original.name ||
+            person !== original.person ||
+            total !== original.total ||
+            cash !== original.cash ||
+            gpay !== original.gpay
+        );
+        if (name && person && total !== '' && changed) {
+            saveBtn.disabled = false;
+        } else {
+            saveBtn.disabled = true;
+        }
+    }
+
+    // Remove 'expense-total' from editable fields for change detection in edit mode
+    ['expense-name', 'expense-person', 'expense-cash', 'expense-gpay'].forEach(id => {
+        document.getElementById(id).addEventListener('input', checkEditChanged);
+    });
 };
 
 window.deleteExpense = async function(idx) {

@@ -1,0 +1,16 @@
+/* dashboard.css - styles for dashboard.html */
+
+/* Logout button style */
+#logout-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#logout-btn:hover {
+    background: #b71c1c;
+}

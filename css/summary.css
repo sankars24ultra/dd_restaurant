@@ -1,0 +1,204 @@
+/* summary.css - styles for summary page */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+h2 {
+    margin: 24px 0 16px 12px;
+    text-align: left;
+    color: #222;
+}
+.summary-controls {
+    margin: 0 0 18px 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+    align-items: center;
+    max-width: 1100px;
+    justify-content: flex-start;
+    padding: 0 0 0 12px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    row-gap: 6px;
+}
+.summary-controls button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 0;
+    font-size: 1em;
+    font-family: Menlo, Monaco, 'Courier New', monospace;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin: 0;
+    min-width: 120px;
+    max-width: 160px;
+    width: 13%;
+    height: 40px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.summary-controls button.active-summary-btn {
+    background: #0056b3;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 2px 8px #007bff33;
+}
+.summary-controls button:hover {
+    background: #0056b3;
+}
+.summary-controls label {
+    font-size: 1em;
+    color: #333;
+}
+.summary-controls input[type="date"] {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+#summary-report {
+    margin: 0 auto;
+    max-width: 900px;
+    padding: 0 12px 32px 12px;
+}
+.summary-card {
+    min-width: 220px;
+    padding: 16px 22px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 8px #0001;
+    margin-bottom: 18px;
+    flex: 1 1 220px;
+}
+.summary-card h4 {
+    margin: 0 0 10px 0;
+    color: #007bff;
+    font-size: 1.1em;
+}
+.summary-card b {
+    font-weight: 600;
+}
+.summary-card .profit {
+    color: #28a745;
+}
+.summary-card .loss {
+    color: #dc3545;
+}
+.summary-card .meta {
+    font-size: 0.97em;
+    color: #888;
+    margin-top: 8px;
+}
+@media (max-width: 700px) {
+    .summary-controls, #summary-report > div {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .summary-card {
+        min-width: 0;
+    }
+}
+.summary-table-container {
+    margin-top: 18px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px #0002;
+    overflow-x: auto;
+}
+.summary-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 1em;
+    margin-top: 6px;
+    margin-bottom: 10px;
+}
+.summary-table-container th, .summary-table-container td {
+    border: 1px solid #e0e0e0;
+    padding: 10px 10px;
+    text-align: center;
+}
+.summary-table-container th {
+    background: #f0f0f0;
+    color: #333;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+.summary-table-container tr:nth-child(even) td {
+    background: #f9fbfc;
+}
+.summary-table-container tr:hover td {
+    background: #e3f2fd;
+}
+.summary-table-container td {
+    font-size: 1em;
+}
+.summary-profit {
+    color: #28a745;
+    font-weight: 600;
+}
+.summary-loss {
+    color: #dc3545;
+    font-weight: 600;
+}
+.summary-zero {
+    color: orange;
+    font-weight: 600;
+}
+@media (max-width: 700px) {
+    .summary-table-container table, .summary-table-container th, .summary-table-container td {
+        font-size: 0.97em;
+    }
+    .summary-table-container th, .summary-table-container td {
+        padding: 8px 4px;
+    }
+}
+ .summary-vertical-container {
+    display: block;
+    max-width: 100%;
+    margin: 24px 0 0 0;
+    width: 100%;
+}
+#summary-table-container {
+    margin-bottom: 32px;
+}
+#summary-chart-row, .donut-charts-grid {
+    margin-top: 16px;
+}
+#summary-table-container {
+    overflow-y: auto;
+    max-height: 100%;
+}
+#summary-chart-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    max-height: 100%;
+    max-width: 900px;
+    width: 100%;
+}
+.donut-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    width: 100%;
+    justify-items: center;
+    align-items: start;
+}
+@media (max-width: 1100px) {
+    .donut-charts-grid {
+        grid-template-columns: 1fr;
+    }
+}

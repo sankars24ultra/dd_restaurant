@@ -1,3 +1,20 @@
+/* Icon tile delete button color */
+.delete-icon-btn {
+    background: #cc0000 !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 5px;
+    padding: 7px 0;
+    font-size: 1em;
+    font-family: Menlo, Monaco, 'Courier New', monospace;
+    cursor: pointer;
+    transition: background 0.2s;
+    min-width: 80px;
+    margin-top: 6px;
+}
+.delete-icon-btn:hover {
+    background: #a30000 !important;
+}
 /* Add Expense button style */
 .add-expense-btn {
     background: #ff5f1f;

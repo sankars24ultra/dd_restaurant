@@ -3,15 +3,5 @@
         "name": "item1",
         "price": 50,
         "image": "dosa.png"
-    },
-    {
-        "name": "item2",
-        "price": 10,
-        "image": "default.png"
-    },
-    {
-        "name": "item3",
-        "price": 30,
-        "image": "default.png"
     }
 ]
