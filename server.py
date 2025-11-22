@@ -1,9 +1,144 @@
-from flask import Flask, request, jsonify, send_from_directory
+
+from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for
 import json
 import os
 import datetime
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+app.secret_key = 'your_secret_key_here'  # Change this to a random secret key in production
+
+# --- EXPENSES API ---
+EXPENSES_FILE = 'data/expenses.json'
+
+def load_expenses():
+    if not os.path.exists('data'):
+        os.makedirs('data', exist_ok=True)
+    if not os.path.exists(EXPENSES_FILE):
+        with open(EXPENSES_FILE, 'w') as f:
+            json.dump([], f)
+    with open(EXPENSES_FILE, 'r') as f:
+        try:
+            return json.load(f)
+        except:
+            return []
+
+def save_expenses(data):
+    if not os.path.exists('data'):
+        os.makedirs('data', exist_ok=True)
+    with open(EXPENSES_FILE, 'w') as f:
+        json.dump(data, f, indent=4)
+
+@app.route('/api/expenses', methods=['GET'])
+def get_expenses():
+    return jsonify(load_expenses())
+
+@app.route('/api/expenses', methods=['POST'])
+def add_expense():
+    data = request.json
+    # Ensure 'pending' is always stored
+    try:
+        total = float(data.get('total', 0))
+        paid = float(data.get('paid', 0))
+        data['pending'] = total - paid
+    except Exception:
+        data['pending'] = 0
+    # Set createdDateTime and lastUpdateDateTime
+    now = datetime.datetime.utcnow().isoformat()
+    data['createdDateTime'] = now
+    data['lastUpdateDateTime'] = now
+    expenses = load_expenses()
+    expenses.append(data)
+    save_expenses(expenses)
+    return jsonify({'status': 'success', 'expenses': expenses})
+
+@app.route('/api/expenses/<int:index>', methods=['PUT'])
+def update_expense(index):
+    expenses = load_expenses()
+    if 0 <= index < len(expenses):
+        data = request.json
+        # Ensure 'pending' is always stored
+        try:
+            total = float(data.get('total', 0))
+            paid = float(data.get('paid', 0))
+            data['pending'] = total - paid
+        except Exception:
+            data['pending'] = 0
+        # Preserve createdDateTime, update lastUpdateDateTime
+        old = expenses[index]
+        data['createdDateTime'] = old.get('createdDateTime', old.get('date', ''))
+        data['lastUpdateDateTime'] = datetime.datetime.utcnow().isoformat()
+        expenses[index] = data
+        save_expenses(expenses)
+        return jsonify({'status': 'success', 'expenses': expenses})
+    return jsonify({'status': 'error', 'message': 'Index out of range'}), 400
+
+@app.route('/api/expenses/<int:index>', methods=['DELETE'])
+def delete_expense(index):
+    expenses = load_expenses()
+    if 0 <= index < len(expenses):
+        expenses.pop(index)
+        save_expenses(expenses)
+        return jsonify({'status': 'success', 'expenses': expenses})
+    return jsonify({'status': 'error', 'message': 'Index out of range'}), 400
+
+# --- ICONS API ---
+ICONS_FOLDER = os.path.join('pages', 'images', 'menuItems')
+ALLOWED_IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp'}
+
+def allowed_image(filename):
+    ext = os.path.splitext(filename)[1].lower()
+    return ext in ALLOWED_IMAGE_EXTENSIONS
+
+# List all images in menu icons folder
+@app.route('/api/menu-icons', methods=['GET'])
+def list_menu_icons():
+    try:
+        files = os.listdir(ICONS_FOLDER)
+        images = [f for f in files if allowed_image(f)]
+        return jsonify(images)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Upload a new icon image
+@app.route('/api/menu-icons', methods=['POST'])
+def upload_menu_icon():
+    if 'icon' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['icon']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if not allowed_image(file.filename):
+        return jsonify({'error': 'Invalid file type'}), 400
+    filename = secure_filename(file.filename)
+    save_path = os.path.join(ICONS_FOLDER, filename)
+    # Avoid overwrite: if file exists, add a number
+    base, ext = os.path.splitext(filename)
+    counter = 1
+    while os.path.exists(save_path):
+        filename = f"{base}_{counter}{ext}"
+        save_path = os.path.join(ICONS_FOLDER, filename)
+        counter += 1
+    file.save(save_path)
+    return jsonify({'status': 'success', 'filename': filename})
+
+# Delete an icon image
+@app.route('/api/menu-icons/<filename>', methods=['DELETE'])
+def delete_menu_icon(filename):
+    filename = secure_filename(filename)
+    file_path = os.path.join(ICONS_FOLDER, filename)
+    if not os.path.exists(file_path):
+        return jsonify({'error': 'File not found'}), 404
+    try:
+        os.remove(file_path)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Simple login credentials (for demonstration)
+USERNAME = 'admin'
+PASSWORD = 'password'
+
 
 MENU_FILE = 'data/menu.json'
 # add these constants and helper functions (place near MENU_FILE/load_menu/save_menu)
@@ -44,12 +179,42 @@ def save_orders(data):
 
 
 # Serve static files
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
 
+# Login route
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    if username == USERNAME and password == PASSWORD:
+        session['logged_in'] = True
+        return jsonify({'status': 'success'})
+    return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401
+
+# Logout route
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('logged_in', None)
+    return jsonify({'status': 'success'})
+
+
+# Protect dashboard.html
+@app.route('/dashboard.html')
+def dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('index'))
+    return send_from_directory('.', 'dashboard.html')
+
+# Serve other static files
 @app.route('/<path:path>')
 def serve_file(path):
+    # Prevent direct access to dashboard.html
+    if path == 'dashboard.html':
+        return redirect(url_for('index'))
     return send_from_directory('.', path)
 
 # Serve images from pages/images folder
@@ -70,6 +235,20 @@ def add_menu():
     menu.append(data)
     save_menu(menu)
     return jsonify({"status": "success", "menu": menu})
+
+
+# API to update menu item
+@app.route('/api/menu/<int:index>', methods=['PUT'])
+def update_menu(index):
+    menu = load_menu()
+    if 0 <= index < len(menu):
+        data = request.json
+        for key in ['name', 'price', 'image']:
+            if key in data:
+                menu[index][key] = data[key]
+        save_menu(menu)
+        return jsonify({"status": "success", "menu": menu})
+    return jsonify({"status": "error", "message": "Index out of range"}), 400
 
 # API to delete menu item
 @app.route('/api/menu/<int:index>', methods=['DELETE'])

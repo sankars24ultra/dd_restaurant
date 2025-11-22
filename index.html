@@ -2,55 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HotelApp Login</title>
+    <title>DD Login</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            height: 100vh;
-            justify-content: center;
-            align-items: center;
-            background-color: #f2f2f2;
-        }
-        .login-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px #aaa;
-            width: 300px;
-        }
-        .login-container h2 { text-align: center; }
-        .login-container input {
-            width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc;
-        }
-        .login-container button {
-            width: 100%; padding: 10px; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer;
-        }
-        .login-container button:hover { background-color: #218838; }
-        .error { color: red; text-align: center; }
-    </style>
+    <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
 <div class="login-container">
-    <h2>HotelApp Login</h2>
+    <h2>Login</h2>
     <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
+    <div class="password-wrapper">
+        <input type="password" id="password" placeholder="Password">
+        <span id="togglePassword">
+            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="gray"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        </span>
+    </div>
+    <div class="error" id="logout-msg" style="color:green;text-align:center;"></div>
     <div class="error" id="error-msg"></div>
     <button onclick="login()">Login</button>
 </div>
 
-<script>
-function login(){
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    const error = document.getElementById('error-msg');
-    if(user==='admin' && pass==='admin'){
-        window.location.href='dashboard.html';
-    } else {
-        error.innerText = 'Invalid username or password!';
-    }
-}
-</script>
+<script src="js/login.js"></script>
 </body>
 </html>
