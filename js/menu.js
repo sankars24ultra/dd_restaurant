@@ -25,7 +25,7 @@ async function loadMenu() {
                 </div>
                 <div style="display:flex;gap:8px;justify-content:center;">
                     <button class="edit-btn" data-index="${index}" style="background:#007bff;">Edit</button>
-                    <button onclick="deleteMenu(${index})" style="background:#dc3545;">Delete</button>
+                    <button onclick="window.showMenuDeleteModal(${index}, '${item.name.replace(/'/g,"&#39;")}', '${item.price}')" style="background:#dc3545;">Delete</button>
                 </div>
             `;
             menuTilesGrid.appendChild(tile);
@@ -229,5 +229,34 @@ async function deleteMenu(index) {
     await fetch(`/api/menu/${index}`, { method: 'DELETE' });
     loadMenu();
 }
+
+
+
+
+// Use HTML popup for menu delete confirmation (like expenses)
+let menuDeleteIndex = null;
+window.showMenuDeleteModal = function(index, name, price) {
+    menuDeleteIndex = index;
+    document.getElementById('menu-delete-confirm-details').innerHTML = `<b>${name}</b><br>Price: ₹${price}`;
+    document.getElementById('menu-delete-confirm-popup').style.display = 'block';
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ...existing code...
+    const delPopup = document.getElementById('menu-delete-confirm-popup');
+    const delOk = document.getElementById('menuConfirmDeleteBtn');
+    const delCancel = document.getElementById('menuCancelDeleteBtn');
+    if (delOk && delCancel && delPopup) {
+        delOk.onclick = function() {
+            if (menuDeleteIndex != null) window.deleteMenu(menuDeleteIndex);
+            delPopup.style.display = 'none';
+            menuDeleteIndex = null;
+        };
+        delCancel.onclick = function() {
+            delPopup.style.display = 'none';
+            menuDeleteIndex = null;
+        };
+    }
+});
 
 document.addEventListener('DOMContentLoaded', loadMenu);

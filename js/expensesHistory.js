@@ -1,10 +1,33 @@
 // Show confirmation before deleting an expense
-function confirmDeleteExpense(idx) {
-    if (confirm('Are you sure you want to delete this expense?')) {
-        deleteExpense(idx);
+// Custom popup confirmation for expense delete
+let deleteExpenseIndex = null;
+window.confirmDeleteExpense = function(idx) {
+    deleteExpenseIndex = idx;
+    const exp = allExpenses[idx];
+    let html = '';
+    if (exp) {
+        html = `<b>${exp.name || ''}</b> (${exp.person || ''})<br>Total: ₹${formatMoney(exp.total)}<br>Date: ${exp.date ? new Date(exp.date).toLocaleString() : ''}`;
     }
-}
-window.confirmDeleteExpense = confirmDeleteExpense;
+    document.getElementById('delete-confirm-details').innerHTML = html;
+    document.getElementById('delete-confirm-popup').style.display = 'block';
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const delPopup = document.getElementById('delete-confirm-popup');
+    const delOk = document.getElementById('confirmDeleteBtn');
+    const delCancel = document.getElementById('cancelDeleteBtn');
+    if (delOk && delCancel && delPopup) {
+        delOk.onclick = function() {
+            if (deleteExpenseIndex != null) deleteExpense(deleteExpenseIndex);
+            delPopup.style.display = 'none';
+            deleteExpenseIndex = null;
+        };
+        delCancel.onclick = function() {
+            delPopup.style.display = 'none';
+            deleteExpenseIndex = null;
+        };
+    }
+});
 // expensesHistory.js - Expense table features: Export CSV, Pagination, Date Range Filter
 
 let allExpenses = [];
@@ -51,9 +74,16 @@ function applyExpenseDateFilter() {
 }
 
 function clearExpenseFilter() {
-    document.getElementById('expenseFromDate').value = '';
-    document.getElementById('expenseToDate').value = '';
-    filteredExpenses = [...allExpenses];
+    // Set filter inputs to today
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0,0,0,0);
+    const end = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23,59,59,999);
+    document.getElementById('expenseFromDate').value = start.toISOString().slice(0,10);
+    document.getElementById('expenseToDate').value = end.toISOString().slice(0,10);
+    filteredExpenses = allExpenses.filter(e => {
+        const ed = parseExpenseDate(e);
+        return ed && ed >= start && ed <= end;
+    });
     if (showPendingOnly) {
         filteredExpenses = filteredExpenses.filter(e => Number(e.pending) > 0);
     }
@@ -106,12 +136,10 @@ function renderExpensePage() {
                         <img src="images/icons/edit.png" alt="Edit" style="width:32px;height:32px;vertical-align:middle;opacity:${isPendingZero ? '0.4' : '1'};filter:${isPendingZero ? 'grayscale(1)' : 'none'};" />
                     </button>
                     <button 
-                        onclick="${!isPendingZero ? `confirmDeleteExpense(${allIdx})` : ''}"
                         title="Delete" 
-                        style="background:none;border:none;padding:0;cursor:pointer;"
-                        ${isPendingZero ? 'disabled' : ''}
+                        style="background:none;border:none;padding:0;cursor:pointer;" disabled
                     >
-                        <img src="images/icons/delete.png" alt="Delete" style="width:32px;height:32px;vertical-align:middle;opacity:${isPendingZero ? '0.4' : '1'};filter:${isPendingZero ? 'grayscale(1)' : 'none'};" />
+                        <img src="images/icons/delete.png" alt="Delete" style="width:32px;height:32px;vertical-align:middle;opacity:0.4;filter:grayscale(1);" />
                     </button>
                 </td>
             `;
