@@ -8,12 +8,17 @@ async function loadMenu() {
     try {
         const res = await fetch('/api/menu');
         const menu = await res.json();
+        // keep a copy of current menu data for reorder persistence
+        window.currentMenu = menu || [];
 
         menuTilesGrid.innerHTML = '';
         menu.forEach(function(item, index) {
             let imagePath = item.image ? `/pages/images/menuItems/${item.image}` : '/pages/images/menuItems/default.png';
             let tile = document.createElement('div');
             tile.className = 'tile';
+            tile.setAttribute('draggable', 'true');
+            tile.dataset.menuIndex = index; // original index/id for server
+            tile.dataset.originalIndex = index;
             tile.innerHTML = `
                 <div style="width:100%;height:90px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f8f8f8;border-radius:6px;">
                     <img src="${imagePath}" alt="${item.name}" style="max-width:80px;max-height:80px;object-fit:contain;display:block;">
@@ -30,6 +35,8 @@ async function loadMenu() {
             `;
             menuTilesGrid.appendChild(tile);
         });
+        // enable drag & drop reorder
+        enableTileDragReorder();
         // Attach edit button listeners
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.onclick = function() { openEditMenuPopup(parseInt(this.getAttribute('data-index'))); };
@@ -101,6 +108,98 @@ async function loadMenu() {
     } catch (err) {
         console.error('Error loading menu:', err);
     }
+}
+
+// Drag & drop reorder helpers
+function enableTileDragReorder() {
+    const grid = document.getElementById('menuTilesGrid');
+    let draggingEl = null;
+
+    function onDragStart(e) {
+        draggingEl = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.dataset.menuIndex);
+    }
+
+    function onDragEnd() {
+        if (draggingEl) draggingEl.classList.remove('dragging');
+        draggingEl = null;
+        // remove any drag-over classes
+        document.querySelectorAll('.tile.drag-over').forEach(el => el.classList.remove('drag-over'));
+    }
+
+    function onDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const target = this;
+        if (target && target !== draggingEl) {
+            // add visual
+            document.querySelectorAll('.tile.drag-over').forEach(el => el.classList.remove('drag-over'));
+            target.classList.add('drag-over');
+        }
+    }
+
+    function onDragLeave() {
+        this.classList.remove('drag-over');
+    }
+
+    async function onDrop(e) {
+        e.preventDefault();
+        const target = this;
+        if (!draggingEl || target === draggingEl) return;
+        // determine positions
+        const children = Array.from(grid.children);
+        const fromIdx = children.indexOf(draggingEl);
+        const toIdx = children.indexOf(target);
+        if (fromIdx < 0 || toIdx < 0) return;
+        // move DOM element
+        if (fromIdx < toIdx) {
+            grid.insertBefore(draggingEl, target.nextSibling);
+        } else {
+            grid.insertBefore(draggingEl, target);
+        }
+        // cleanup classes
+        document.querySelectorAll('.tile.drag-over').forEach(el => el.classList.remove('drag-over'));
+        draggingEl.classList.remove('dragging');
+
+        // update dataset order indices on DOM children (keep original id in data-original-index)
+        const newOrder = Array.from(grid.children).map(child => child.dataset.menuIndex);
+
+        // try to persist order to server by sending the full reordered items array
+        try {
+            const reorderedItems = Array.from(grid.children).map(child => {
+                const orig = parseInt(child.dataset.originalIndex);
+                return window.currentMenu[orig];
+            }).filter(Boolean);
+
+            const res = await fetch('/api/menu/reorder', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: reorderedItems })
+            });
+            if (!res.ok) throw new Error('Server reorder failed');
+            // reload from server to normalize indexes and data
+            await loadMenu();
+        } catch (err) {
+            console.warn('Reorder save failed, keeping client order only', err);
+            // reassign menuIndex attributes in DOM to match new visual order
+            Array.from(grid.children).forEach((child, i) => { child.dataset.menuIndex = newOrder[i]; });
+            // reattach edit handlers with updated indices
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.onclick = function() { openEditMenuPopup(parseInt(this.getAttribute('data-index'))); };
+            });
+        }
+    }
+
+    // attach handlers to current tiles
+    document.querySelectorAll('#menuTilesGrid .tile').forEach(tile => {
+        tile.addEventListener('dragstart', onDragStart);
+        tile.addEventListener('dragend', onDragEnd);
+        tile.addEventListener('dragover', onDragOver);
+        tile.addEventListener('dragleave', onDragLeave);
+        tile.addEventListener('drop', onDrop);
+    });
 }
 
 // menu.js

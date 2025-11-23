@@ -318,6 +318,50 @@ def delete_menu(index):
     return jsonify({"status": "error", "message": "Index out of range"}), 400
 
 
+# API to reorder menu items. Expects JSON: { order: [originalIndex, ...] }
+@app.route('/api/menu/reorder', methods=['PUT'])
+def reorder_menu():
+    data = request.json or {}
+    menu = load_menu()
+    # If client provides full items array, replace menu directly
+    items = data.get('items')
+    if items and isinstance(items, list):
+        try:
+            # basic validation: ensure each item is a dict with at least a name
+            validated = [it for it in items if isinstance(it, dict) and it.get('name')]
+            # if validation passes and length matches, save; otherwise save what we can
+            save_menu(validated if validated else menu)
+            return jsonify({"status": "success", "menu": load_menu()})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 400
+
+    # fallback: accept order array of indices (legacy)
+    order = data.get('order') or []
+    try:
+        new_menu = []
+        for idx in order:
+            try:
+                i = int(idx)
+            except Exception:
+                continue
+            if 0 <= i < len(menu):
+                new_menu.append(menu[i])
+        if len(new_menu) != len(menu):
+            included = set()
+            for idx in order:
+                try:
+                    included.add(int(idx))
+                except Exception:
+                    continue
+            for i, item in enumerate(menu):
+                if i not in included:
+                    new_menu.append(item)
+        save_menu(new_menu)
+        return jsonify({"status": "success", "menu": new_menu})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+
 # Alias for backward compatibility with summary.js
 @app.route('/api/orderHistory', methods=['GET'])
 def get_order_history():

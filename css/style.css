@@ -655,6 +655,10 @@ input[type="text"], input[type="number"], input[type="date"] {
 .tile .controls { display:flex; justify-content:space-between; align-items:center; gap:6px; }
 .tile.selected { box-shadow:0 0 0 2px rgba(0,128,0,0.12); border-color: #4caf50; }
 
+/* Drag & drop visuals for menu tiles */
+.tile.dragging { opacity: 0.5; }
+.tile.drag-over { outline: 2px dashed rgba(0,0,0,0.35); transform: translateY(-4px); }
+
 .popup {
     display:none;
     position:fixed;
