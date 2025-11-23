@@ -58,5 +58,35 @@
         "paidGpay": 0,
         "remaining": 0,
         "createdAt": "2025-11-23T19:40:23.640Z"
+    },
+    {
+        "orderName": "Customer",
+        "items": [
+            {
+                "name": "Brolier",
+                "qty": 1,
+                "price": 150
+            }
+        ],
+        "total": 150,
+        "paidCash": 0,
+        "paidGpay": 150,
+        "remaining": 0,
+        "createdAt": "2025-11-23T19:58:47.494Z"
+    },
+    {
+        "orderName": "Customer",
+        "items": [
+            {
+                "name": "Chicken Rice",
+                "qty": 1,
+                "price": 80
+            }
+        ],
+        "total": 80,
+        "paidCash": 80,
+        "paidGpay": 0,
+        "remaining": 0,
+        "createdAt": "2025-11-23T20:01:36.327Z"
     }
 ]
