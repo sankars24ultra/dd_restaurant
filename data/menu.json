@@ -1,7 +1,32 @@
 [
     {
-        "name": "item1",
+        "name": "Chicken Rice",
+        "price": 80,
+        "image": "chicken_rice.png"
+    },
+    {
+        "name": "Duck Combo",
+        "price": 100,
+        "image": "duck.png"
+    },
+    {
+        "name": "Chicken 65",
         "price": 50,
-        "image": "dosa.png"
+        "image": "chicken_65.png"
+    },
+    {
+        "name": "Fish",
+        "price": 100,
+        "image": "fish.png"
+    },
+    {
+        "name": "puraa",
+        "price": 50,
+        "image": "puraa.png"
+    },
+    {
+        "name": "Brolier",
+        "price": 150,
+        "image": "broiler_chicken.png"
     }
 ]
