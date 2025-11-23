@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Order</title>
     <link rel="stylesheet" href="../css/style.css">
     <script src="../js/order.js" defer></script>
@@ -18,16 +19,17 @@
     <!-- Order Popup -->
     <div id="orderPopup" class="popup order-popup" role="dialog" aria-hidden="true">
         <h3>Create Order</h3>
-        <div class="order-field">
+        <div class="order-field inline">
             <label for="orderName">Order Name</label>
             <input id="orderName" type="text" placeholder="Customer or order name" value="Customer">
         </div>
-        <div class="order-field">
-            <label>Order Menus</label>
-            <table id="orderMenusTable" class="order-table">
-                <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div class="order-field">
+            <div class="order-table-wrapper">
+                <table id="orderMenusTable" class="order-table">
+                    <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
         <div class="order-row-two">
             <div>
@@ -41,20 +43,20 @@
         </div>
         <fieldset class="payment">
             <legend>Payment</legend>
-            <div class="order-field">
-                <label>Cash</label>
+            <div class="order-field inline">
+                <label for="payCash">Cash</label>
                 <input id="payCash" type="number" min="0" step="0.01" value="0">
             </div>
-            <div class="order-field">
-                <label>GPay</label>
+            <div class="order-field inline">
+                <label for="payGpay">GPay</label>
                 <input id="payGpay" type="number" min="0" step="0.01" value="0">
             </div>
-            <div class="order-field">
-                <label>Remaining</label>
+            <div class="order-field inline">
+                <label for="payRemaining">Balance</label>
                 <input id="payRemaining" class="readonly" type="text" readonly>
             </div>
-            <div class="order-field">
-                <label>Pending</label>
+            <div class="order-field inline">
+                <label for="payPending">Pending</label>
                 <input id="payPending" class="readonly" type="text" readonly>
             </div>
         </fieldset>

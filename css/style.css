@@ -212,6 +212,51 @@
     min-width: 370px;
     max-width: 98vw;
 }
+
+/* Reduce popup height so it appears shorter; the items table scrolls internally */
+.order-popup {
+    /* make popup a column flex container so inner parts can size properly */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 72vh; /* increased so payment and actions remain visible */
+    overflow: hidden; /* prevent content escaping the popup */
+}
+
+.order-table-wrapper {
+    width: 100%;
+    /* row & header heights used to calculate visible area for exactly 3 rows */
+    --order-row-height: 48px;
+    --order-header-height: 48px;
+    /* show 2 rows by default, remaining rows scroll */
+    max-height: calc((var(--order-row-height) * 2) + var(--order-header-height));
+    overflow: auto;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    flex: 1 1 auto;
+    min-height: 0; /* enable proper flexbox scrolling on mobile */
+}
+
+/* Ensure payment area and action buttons don't shrink inside popup */
+.payment {
+    flex: 0 0 auto;
+}
+.order-actions {
+    flex: 0 0 auto;
+}
+
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-table thead th {
+    position: sticky;
+    top: 0;
+    background: #f7f7f7;
+    z-index: 2;
+}
 .order-popup h3 {
     margin-top: 0;
     font-size: 1.3em;
@@ -223,6 +268,29 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+}
+
+/* Remove bottom margin for fields inside the Create Order popup */
+.order-popup .order-field {
+    margin-bottom: 0;
+}
+
+/* Inline variant for order-field: label and input on same row */
+.order-field.inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+.order-field.inline label {
+    flex: 0 0 auto;
+    margin: 0;
+    white-space: nowrap;
+}
+.order-field.inline input,
+.order-field.inline textarea,
+.order-field.inline select {
+    flex: 1 1 auto;
+    width: auto;
 }
 .order-row-two {
     display: flex;
@@ -250,6 +318,16 @@
     padding: 8px 10px;
     text-align: center;
 }
+
+/* Fix row height so wrapper shows exactly 3 rows before scrolling */
+.order-table tbody tr {
+    height: var(--order-row-height);
+}
+.order-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .order-table th {
     background: #f0f0f0;
     color: #333;
@@ -258,10 +336,10 @@
     display: flex;
     gap: 16px;
     justify-content: flex-end;
-    margin-top: 18px;
+    margin-top: 8px;
 }
 .order-actions button {
-    min-width: 110px;
+    min-width: 120px;
     padding: 10px 0;
     font-size: 1em;
     border-radius: 6px;
@@ -282,7 +360,7 @@
     font-weight: bold;
 }
 .order-actions .order-confirm:disabled {
-    background: #b7e7db;
+    background: #71be22;
     color: #fff;
     cursor: not-allowed;
 }
@@ -686,4 +764,30 @@ input[type="text"], input[type="number"], input[type="date"] {
 
 
 /* Order History Total Box -- End */
+
+/* Mobile adjustments to ensure payment fields and action buttons remain visible
+     without requiring browser zoom-out. Targets narrow viewports only. */
+@media (max-width: 600px) {
+    .order-popup {
+        max-height: 88vh; /* give more vertical room on small screens */
+        padding: 12px; /* reduce padding to gain space */
+        left: 50%;
+        top: 5vh; /* move popup closer to top so content fits better */
+        transform: translateX(-50%); /* avoid vertical translate which can push popup offscreen */
+        width: 94vw;
+    }
+
+    .order-popup h3 { margin-bottom: 8px; }
+
+    /* slightly reduce header/row heights for small screens and show 2 rows */
+    .order-table-wrapper {
+        --order-row-height: 44px;
+        --order-header-height: 40px;
+        max-height: calc((var(--order-row-height) * 2) + var(--order-header-height));
+    }
+
+    /* Ensure payment block and actions stay visible */
+    .payment { padding-top: 6px; padding-bottom: 6px; }
+    .order-actions { margin-top: 8px; }
+}
 

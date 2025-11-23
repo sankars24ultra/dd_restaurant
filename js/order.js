@@ -105,7 +105,8 @@ if (!window.__orderInitialized) {
             const paid = (isFinite(cash) ? cash : 0) + (isFinite(gpay) ? gpay : 0);
             const remaining = Math.max(0, currentTotal - paid);
             payRemaining.value = formatMoney(remaining);
-            payPending.value = paid < currentTotal ? `Pending ${formatMoney(currentTotal - paid)}` : 'Paid';
+            //payPending.value = paid < currentTotal ? `Pending ${formatMoney(currentTotal - paid)}` : 'Paid';
+            payPending.value = paid < currentTotal ? `${formatMoney(currentTotal - paid)}` : 'Paid';
 
             // update confirm button state whenever payments change
             updateConfirmState();

@@ -29,12 +29,14 @@ function renderSummaryChart(stats) {
     chartDiv.innerHTML = '';
 
     // Render 4 donut charts for each period
-    const donutLabels = ['Sales', 'Paid', 'Pending', 'Summary'];
     // Set colors as requested
-    // Sales: #0066FF, Paid: #00FFCC, Pending: #FF6633, Summary: dynamic
+    // Sales: #0066FF, Paid: #00FFCC, Pending: #FF6633, Summary: dynamic (Profit/Loss)
     const donutContainer = document.getElementById('donut-charts-container');
     donutContainer.innerHTML = '';
     stats.forEach((s, i) => {
+        // dynamic label for the summary slice: Profit if >=0, Loss if <0
+        const summaryLabel = (Number(s.summary) < 0) ? 'Loss' : 'Profit';
+        const donutLabels = ['Sales', 'Paid', 'Pending', summaryLabel];
         const donutId = `donutChart${i}`;
         const donutBox = document.createElement('div');
         donutBox.style.display = 'flex';
@@ -48,11 +50,9 @@ function renderSummaryChart(stats) {
         if (window[`_donutChart${i}`]) window[`_donutChart${i}`].destroy();
         // Compose center text: total and summary
         const total = s.sales + s.paidExpenses + s.pendingExpenses;
-        // Dynamic color for summary
-        let summaryColor = '#ff4d88';
-        if (s.summary > 0) summaryColor = '#269900';
-        else if (s.summary < 0) summaryColor = '#cc0000';
-        // if exactly 0, stays #ff4d88
+        // Dynamic color for summary: treat zero as Profit (green)
+        let summaryColor = '#269900';
+        if (Number(s.summary) < 0) summaryColor = '#cc0000';
         const donutColors = ['#0066FF', '#ff5f1f', '#ffc107', summaryColor];
         window[`_donutChart${i}`] = new Chart(donutCtx, {
             type: 'doughnut',
@@ -98,7 +98,7 @@ function renderSummaryChart(stats) {
                     },
                     centerText: {
                         text1: `Total: ₹${total.toLocaleString()}`,
-                        text2: `Summary: ₹${s.summary.toLocaleString()}`
+                        text2: `${summaryLabel}: ₹${Number(s.summary).toLocaleString()}`
                     }
                 },
                 cutout: '65%'

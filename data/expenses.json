@@ -1,50 +1,38 @@
 [
     {
-        "name": "EB",
-        "person": "v",
-        "total": 800.0,
-        "paid": 800.0,
-        "cash": 800,
-        "gpay": 0,
-        "pending": 0,
-        "date": "2025-11-20T18:48:13.000Z",
-        "createdDateTime": "2025-11-20T18:48:21.991086",
-        "lastUpdateDateTime": "2025-11-20T18:48:21.991086"
-    },
-    {
-        "name": "EB",
-        "person": "v",
+        "name": "maligai",
+        "person": "viki",
         "total": 100.0,
         "paid": 100.0,
         "cash": 100,
         "gpay": 0,
         "pending": 0,
-        "date": "2025-11-23T00:48:21.000Z",
-        "createdDateTime": "2025-11-22T18:48:21.991086",
-        "lastUpdateDateTime": "2025-11-22T18:55:27.349646"
+        "date": "2025-11-23T05:59:25.000Z",
+        "createdDateTime": "2025-11-23T05:59:52.719903",
+        "lastUpdateDateTime": "2025-11-23T05:59:52.719903"
     },
     {
         "name": "EB",
-        "person": "v",
-        "total": 100.0,
-        "paid": 100.0,
-        "cash": 100,
+        "person": "e",
+        "total": 500.0,
+        "paid": 500.0,
+        "cash": 500,
         "gpay": 0,
         "pending": 0,
-        "date": "2025-11-23T00:48:21.000Z",
-        "createdDateTime": "2025-11-22T18:48:21.991086",
-        "lastUpdateDateTime": "2025-11-22T20:19:43.543285"
+        "date": "2025-11-23T19:23:36.000Z",
+        "createdDateTime": "2025-11-23T19:23:53.469904",
+        "lastUpdateDateTime": "2025-11-23T19:23:53.469904"
     },
     {
-        "name": "test",
-        "person": "v",
-        "total": 100.0,
+        "name": "EB",
+        "person": "e",
+        "total": 500.0,
         "paid": 0,
         "cash": 0,
         "gpay": 0,
-        "pending": 100.0,
-        "date": "2025-11-22T20:22:46.000Z",
-        "createdDateTime": "2025-11-22T20:22:53.681899",
-        "lastUpdateDateTime": "2025-11-22T20:22:53.681899"
+        "pending": 500.0,
+        "date": "2025-11-23T19:23:36.000Z",
+        "createdDateTime": "2025-11-23T19:23:53.469904",
+        "lastUpdateDateTime": "2025-11-23T19:23:53.469904"
     }
 ]

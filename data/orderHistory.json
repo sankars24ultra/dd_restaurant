@@ -3,100 +3,60 @@
         "orderName": "Customer",
         "items": [
             {
-                "name": "item1",
+                "name": "Chicken Rice",
                 "qty": 1,
-                "price": 50
-            },
-            {
-                "name": "item2",
-                "qty": 2,
-                "price": 10
-            },
-            {
-                "name": "item3",
-                "qty": 1,
-                "price": 30
+                "price": 80
             }
         ],
-        "total": 100,
-        "paidCash": 100,
-        "paidGpay": 0,
-        "remaining": 0,
-        "createdAt": "2025-11-21T22:07:44.119Z"
-    },
-    {
-        "orderName": "Customer",
-        "items": [
-            {
-                "name": "item1",
-                "qty": 1,
-                "price": 50
-            }
-        ],
-        "total": 50,
-        "paidCash": 50,
-        "paidGpay": 0,
-        "remaining": 0,
-        "createdAt": "2025-11-22T04:31:24.615Z"
-    },
-    {
-        "orderName": "Customer",
-        "items": [
-            {
-                "name": "item1",
-                "qty": 1,
-                "price": 50
-            }
-        ],
-        "total": 50,
+        "total": 80,
         "paidCash": 0,
-        "paidGpay": 50,
+        "paidGpay": 80,
         "remaining": 0,
-        "createdAt": "2025-11-22T18:33:07.360Z"
+        "createdAt": "2025-11-23T05:57:56.896Z"
     },
     {
         "orderName": "Customer",
         "items": [
             {
-                "name": "item2",
-                "qty": 2,
-                "price": 20
-            }
-        ],
-        "total": 40,
-        "paidCash": 40,
-        "paidGpay": 0,
-        "remaining": 0,
-        "createdAt": "2025-11-22T19:07:19.471Z"
-    },
-    {
-        "orderName": "Customer",
-        "items": [
+                "name": "Duck Combo",
+                "qty": 1,
+                "price": 100
+            },
             {
-                "name": "item1",
-                "qty": 3,
+                "name": "Chicken 65",
+                "qty": 1,
                 "price": 50
             }
         ],
         "total": 150,
-        "paidCash": 0,
-        "paidGpay": 150,
+        "paidCash": 150,
+        "paidGpay": 0,
         "remaining": 0,
-        "createdAt": "2025-11-22T20:19:59.588Z"
+        "createdAt": "2025-11-23T05:58:59.796Z"
     },
     {
         "orderName": "Customer",
         "items": [
             {
-                "name": "item1",
-                "qty": 2,
+                "name": "Chicken 65",
+                "qty": 1,
                 "price": 50
+            },
+            {
+                "name": "Fish",
+                "qty": 1,
+                "price": 100
+            },
+            {
+                "name": "Brolier",
+                "qty": 1,
+                "price": 150
             }
         ],
-        "total": 100,
-        "paidCash": 0,
-        "paidGpay": 100,
+        "total": 300,
+        "paidCash": 300,
+        "paidGpay": 0,
         "remaining": 0,
-        "createdAt": "2025-11-22T20:47:11.645Z"
+        "createdAt": "2025-11-23T19:40:23.640Z"
     }
 ]
