@@ -12,10 +12,12 @@
 
     <!-- top bar: total left, controls right -->
     <div class="oh-topbar">
-        <div class="oh-left">
-            <div class="total-box" id="todayTotalBox">
+        <div class="oh-left" style="display:flex;gap:8px;align-items:center;">
+            <div class="total-box total" id="todayTotalBox">
                 Total: ₹<span id="todayTotalValue">0.00</span>
             </div>
+            <div class="total-box cash" id="todayCashBox">Cash: ₹<span id="todayCashValue">0.00</span></div>
+            <div class="total-box gpay" id="todayGpayBox">GPay: ₹<span id="todayGpayValue">0.00</span></div>
         </div>
 
         <div class="oh-right">

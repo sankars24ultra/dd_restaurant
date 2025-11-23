@@ -355,12 +355,12 @@
     background: #999;
 }
 .order-actions .order-confirm {
-    background: #1abc9c;
+    background: #28a744;
     color: #fff;
     font-weight: bold;
 }
 .order-actions .order-confirm:disabled {
-    background: #71be22;
+    background: #bbb;
     color: #fff;
     cursor: not-allowed;
 }
@@ -655,6 +655,10 @@ input[type="text"], input[type="number"], input[type="date"] {
 .tile .controls { display:flex; justify-content:space-between; align-items:center; gap:6px; }
 .tile.selected { box-shadow:0 0 0 2px rgba(0,128,0,0.12); border-color: #4caf50; }
 
+/* Drag & drop visuals for menu tiles */
+.tile.dragging { opacity: 0.5; }
+.tile.drag-over { outline: 2px dashed rgba(0,0,0,0.35); transform: translateY(-4px); }
+
 .popup {
     display:none;
     position:fixed;
@@ -708,24 +712,41 @@ input[type="text"], input[type="number"], input[type="date"] {
 
 .oh-topbar {
     display:flex;
-    align-items:flex-start;
-    gap:16px;
+    align-items:center;
     justify-content:space-between;
     flex-wrap:wrap;
     margin-bottom:12px;
+
 }
 
 /* left total box */
-.oh-left { flex:0 0 auto; }
-.total-box {
-    display:inline-block;
-    padding:10px 14px;
-    border-radius:6px;
-    background:#fffae6;
-    border:1px solid #f1e0a8;
-    font-weight:600;
+.oh-left { 
+    flex:0 0 auto; 
+    display:flex; 
+    gap:10px; 
+    align-items:center;
+    flex-wrap:nowrap; /* keep summary boxes on one line */
+    overflow-x:auto; /* allow horizontal scroll if very narrow */
 }
-.total-box span { font-size:1.1em; color:#1a7f37; }
+.oh-left .total-box {
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 22px;
+    border-radius:28px;
+    background:#fff8ee;
+    border:1px solid rgba(0,0,0,0.06);
+    font-weight:700;
+    font-size:1.05rem;
+    margin-bottom:0;
+    box-shadow: 0 6px 18px rgba(18, 66, 128, 0.06);
+}
+.total-box span { font-size:1.2rem; color:#1a7f37; font-weight:800; }
+
+/* Variants */
+.total-box.total { background: #eaf4ff; border-color: #d7eaff; box-shadow: 0 6px 20px rgba(2,58,128,0.04); }
+.total-box.cash { background: #eaffef; border-color: #cfeeda; box-shadow: 0 6px 20px rgba(2,128,44,0.03); }
+.total-box.gpay { background: #fff7e6; border-color: #f7e6c8; box-shadow: 0 6px 20px rgba(128,88,2,0.03); }
 
 /* right side groups */
 .oh-right {
@@ -757,6 +778,11 @@ input[type="text"], input[type="number"], input[type="date"] {
     .oh-topbar { flex-direction:column; align-items:stretch; }
     .oh-right { justify-content:space-between; width:100%; }
     .filter-row { flex-wrap:wrap; gap:6px; }
+}
+
+@media (max-width: 520px) {
+    .oh-left .total-box { padding:10px 12px; font-size:0.95rem; }
+    .total-box span { font-size:1rem; }
 }
 
 

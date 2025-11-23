@@ -65,7 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // compute totals & render current page
         pageSize = parseInt(pageSizeSelect.value, 10) || 10;
         const totalSum = filteredOrders.reduce((s,o)=> s + Number(o.total || 0), 0);
+        const cashSum = filteredOrders.reduce((s,o)=> s + Number(o.paidCash || 0), 0);
+        const gpaySum = filteredOrders.reduce((s,o)=> s + Number(o.paidGpay || 0), 0);
         todayTotalValue.textContent = formatMoney(totalSum);
+        // update cash/gpay displays if present
+        const todayCashValue = document.getElementById('todayCashValue');
+        const todayGpayValue = document.getElementById('todayGpayValue');
+        if (todayCashValue) todayCashValue.textContent = formatMoney(cashSum);
+        if (todayGpayValue) todayGpayValue.textContent = formatMoney(gpaySum);
 
         const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
         if (currentPage > totalPages) currentPage = totalPages;
